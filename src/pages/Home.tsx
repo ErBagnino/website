@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import ArcReactorScene from '../three/ArcReactorScene'
+import { useSeenOnce } from '../lib/persist'
 
 const BOOT_LINES = [
   'INIZIALIZZAZIONE INTERFACCIA...',
@@ -36,27 +37,42 @@ const HUBS = [
 ]
 
 export default function Home() {
-  const [stage, setStage] = useState<'booting' | 'ready'>('booting')
-  const [lineIndex, setLineIndex] = useState(0)
+  const [seen, markSeen] = useSeenOnce('home')
+  const [stage, setStage] = useState<'booting' | 'ready'>(seen ? 'ready' : 'booting')
+  const [lineIndex, setLineIndex] = useState(seen ? BOOT_LINES.length : 0)
 
   useEffect(() => {
-    if (stage !== 'booting') return
+    if (seen || stage !== 'booting') return
     if (lineIndex >= BOOT_LINES.length) {
-      const t = setTimeout(() => setStage('ready'), 500)
+      const t = setTimeout(() => {
+        setStage('ready')
+        markSeen()
+      }, 500)
       return () => clearTimeout(t)
     }
     const t = setTimeout(() => setLineIndex((i) => i + 1), 620)
     return () => clearTimeout(t)
-  }, [stage, lineIndex])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, lineIndex, seen])
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-void">
       <div className="hud-grid absolute inset-0 z-0" />
       <div className="absolute inset-0 z-10">
         <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
-          <ArcReactorScene />
+          <ArcReactorScene scatter={stage === 'ready'} instant={seen} />
         </Canvas>
       </div>
+      <motion.div
+        className="pointer-events-none absolute inset-0 z-15"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 75% at center, rgba(5,7,12,0.96) 0%, rgba(5,7,12,0.8) 40%, rgba(5,7,12,0.35) 65%, transparent 85%)',
+        }}
+        initial={{ opacity: seen ? 1 : 0 }}
+        animate={{ opacity: stage === 'ready' ? 1 : 0 }}
+        transition={{ duration: 1.2, delay: seen ? 0 : 0.3 }}
+      />
 
       <AnimatePresence mode="wait">
         {stage === 'booting' && (
@@ -81,7 +97,10 @@ export default function Home() {
               {lineIndex < BOOT_LINES.length && <p className="caret text-accent/60">&gt;</p>}
             </div>
             <button
-              onClick={() => setStage('ready')}
+              onClick={() => {
+                setStage('ready')
+                markSeen()
+              }}
               className="mt-10 font-display text-[10px] uppercase tracking-widest text-white/30 underline decoration-dotted underline-offset-4 hover:text-white/70"
             >
               salta intro

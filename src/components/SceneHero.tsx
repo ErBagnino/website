@@ -1,18 +1,23 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useSeenOnce } from '../lib/persist'
 
 interface SceneHeroProps {
-  scene: ReactNode
+  sceneKey: string
+  scene: (settled: boolean) => ReactNode
   lines: string[]
   eyebrow: string
   title: string
   subtitle: string
   accent: string
   cameraPosition?: [number, number, number]
+  background?: ReactNode
+  contentId?: string
 }
 
 export default function SceneHero({
+  sceneKey,
   scene,
   lines,
   eyebrow,
@@ -20,33 +25,78 @@ export default function SceneHero({
   subtitle,
   accent,
   cameraPosition = [0, 0, 6],
+  background,
+  contentId = 'content',
 }: SceneHeroProps) {
-  const [lineIndex, setLineIndex] = useState(0)
-  const [showTitle, setShowTitle] = useState(false)
+  const [, markSeen] = useSeenOnce(`hero:${sceneKey}`)
+  // Snapshot "already seen" at mount time only — markSeen() below flips the live
+  // value reactively, but that must never retroactively change how *this* visit behaves.
+  const wasSeen = useRef((() => {
+    try {
+      return sessionStorage.getItem(`seen:hero:${sceneKey}`) === '1'
+    } catch {
+      return false
+    }
+  })()).current
+
+  const [lineIndex, setLineIndex] = useState(wasSeen ? lines.length : 0)
+  const [showTitle, setShowTitle] = useState(wasSeen)
+  const [settled, setSettled] = useState(wasSeen)
+  const userScrolled = useRef(false)
 
   useEffect(() => {
+    if (wasSeen) return
     if (lineIndex >= lines.length) {
       const t = setTimeout(() => setShowTitle(true), 350)
       return () => clearTimeout(t)
     }
-    const t = setTimeout(() => setLineIndex((i) => i + 1), 480)
+    const t = setTimeout(() => setLineIndex((i) => i + 1), 420)
     return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lineIndex, lines.length])
 
+  useEffect(() => {
+    if (!showTitle || wasSeen) return
+    markSeen()
+    const t = setTimeout(() => setSettled(true), 1400)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showTitle])
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.scrollY > 40) userScrolled.current = true
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    if (!settled || wasSeen) return
+    const t = setTimeout(() => {
+      if (!userScrolled.current) {
+        document.getElementById(contentId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 450)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settled, contentId])
+
   return (
-    <section className="relative flex h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-void">
-      <div className="hud-grid absolute inset-0 z-0" />
-      <div className="absolute inset-0 z-10">
-        <Canvas camera={{ position: cameraPosition, fov: 50 }}>{scene}</Canvas>
+    <section className="relative flex h-[100svh] w-full flex-col overflow-hidden bg-void lg:flex-row">
+      <div className="absolute inset-0 z-0">{background}</div>
+
+      <div className="relative z-10 h-[42%] w-full lg:h-full lg:w-1/2">
+        <Canvas camera={{ position: cameraPosition, fov: 50 }}>{scene(settled)}</Canvas>
       </div>
 
-      <div className="pointer-events-none relative z-20 flex w-full flex-col items-center px-6 text-center">
+      <div className="relative z-20 flex flex-1 flex-col items-start justify-center px-6 py-8 lg:w-1/2 lg:px-14">
         <AnimatePresence mode="wait">
           {!showTitle ? (
             <motion.div
               key="boot"
               exit={{ opacity: 0 }}
-              className="w-[min(90vw,440px)] space-y-2 font-display text-xs uppercase tracking-[0.2em] sm:text-sm"
+              className="w-full max-w-md space-y-2 font-display text-xs uppercase tracking-[0.2em] sm:text-sm"
               style={{ color: accent }}
             >
               {lines.slice(0, lineIndex).map((line, i) => (
@@ -68,6 +118,7 @@ export default function SceneHero({
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
+              className="max-w-lg"
             >
               <span
                 style={{ color: accent }}
@@ -81,21 +132,27 @@ export default function SceneHero({
               >
                 {title}
               </h1>
-              <p className="mx-auto mt-4 max-w-xl text-sm text-white/60 sm:text-base">{subtitle}</p>
+              <p className="mt-4 max-w-xl text-sm text-white/60 sm:text-base">{subtitle}</p>
+
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                onClick={() => {
+                  userScrolled.current = true
+                  document.getElementById(contentId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }}
+                className="mt-8 flex items-center gap-2 font-display text-[10px] uppercase tracking-[0.3em] text-white/40 transition hover:text-white/80"
+              >
+                scorri per esplorare
+                <span aria-hidden className="animate-pulse">
+                  &darr;
+                </span>
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: showTitle ? 1 : 0 }}
-        transition={{ delay: 0.6 }}
-        className="pointer-events-none absolute bottom-8 left-1/2 z-20 -translate-x-1/2 font-display text-[10px] uppercase tracking-[0.3em] text-white/40"
-      >
-        scorri per esplorare
-        <div className="mx-auto mt-2 h-8 w-[1px] animate-pulse bg-white/30" />
-      </motion.div>
     </section>
   )
 }

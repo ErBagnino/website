@@ -29,20 +29,34 @@ const SKILLS = [
   },
 ]
 
+const BG = (
+  <div className="absolute inset-0">
+    <div className="absolute inset-0 bg-void" />
+    <div className="hud-grid absolute inset-0" />
+    <div
+      className="absolute inset-0"
+      style={{ background: 'radial-gradient(ellipse 70% 60% at 25% 50%, rgba(56,240,224,0.1), transparent 70%)' }}
+    />
+  </div>
+)
+
 export default function Tech() {
   return (
     <div className="bg-void">
       <BackToHub accent={ACCENT} />
       <SceneHero
-        scene={<PCBootScene />}
+        sceneKey="tech"
+        scene={(settled) => <PCBootScene settled={settled} />}
         lines={['AVVIO SISTEMA...', 'CARICAMENTO MODULI GRAFICI...', 'RETI NEURALI ATTIVE', 'SISTEMA PRONTO']}
         eyebrow="Modulo 01"
         title="Tech & AI"
         subtitle="Idee digitali, dalla grafica al sito, con l’intelligenza artificiale come alleata e non come scorciatoia."
         accent={ACCENT}
+        background={BG}
+        contentId="tech-content"
       />
 
-      <section className="mx-auto max-w-5xl px-6 py-24">
+      <section id="tech-content" className="mx-auto max-w-5xl px-6 py-24">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

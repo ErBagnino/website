@@ -123,3 +123,30 @@ body {
 .float {
   animation: float-y 5s ease-in-out infinite;
 }
+
+@keyframes wave-scroll-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.wave-scroll {
+  animation: wave-scroll-x 14s linear infinite;
+}
+.wave-scroll-slow {
+  animation: wave-scroll-x 22s linear infinite reverse;
+}
+
+@keyframes beach-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+.beach-sway {
+  animation: beach-sway 6s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.9; }
+}
+.twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}

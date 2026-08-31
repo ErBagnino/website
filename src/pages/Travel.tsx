@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
+import { useMemo } from 'react'
 import SceneHero from '../components/SceneHero'
 import PlaneFlyoverScene from '../three/PlaneFlyoverScene'
 import BackToHub from '../components/BackToHub'
-import TravelQuiz from '../components/TravelQuiz'
+import TravelWizard from '../components/TravelWizard'
+import BeachTransition from '../components/BeachTransition'
 
 const ACCENT = '#ffb454'
 
@@ -29,20 +31,60 @@ const HELPS = [
   },
 ]
 
+function DuskSky() {
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 60 }).map(() => ({
+        top: `${Math.random() * 55}%`,
+        left: `${Math.random() * 100}%`,
+        size: 1 + Math.random() * 1.6,
+        delay: Math.random() * 3,
+      })),
+    [],
+  )
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(180deg, #050810 0%, #0b1526 28%, #1c2c46 50%, #5c4a3c 78%, #ffb454 100%)',
+        }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-1/2"
+        style={{ background: 'radial-gradient(ellipse 70% 100% at 50% 100%, rgba(255,180,84,0.35), transparent 70%)' }}
+      />
+      {stars.map((s, i) => (
+        <span
+          key={i}
+          className="twinkle absolute rounded-full bg-white"
+          style={{ top: s.top, left: s.left, width: s.size, height: s.size, animationDelay: `${s.delay}s` }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function Travel() {
   return (
     <div className="bg-void">
       <BackToHub accent={ACCENT} />
       <SceneHero
-        scene={<PlaneFlyoverScene />}
+        sceneKey="travel"
+        scene={() => <PlaneFlyoverScene />}
         lines={['TRACCIANDO ROTTA...', 'RICERCA DESTINAZIONI...', 'OTTIMIZZAZIONE ITINERARIO...', 'PRONTI AL DECOLLO']}
         eyebrow="Modulo 02"
         title="Viaggi"
         subtitle="Ricerche fatte con cura (e con l’aiuto dell’AI) per viaggi che si ricordano per i motivi giusti."
         accent={ACCENT}
+        background={<DuskSky />}
+        contentId="travel-content"
       />
 
-      <section className="mx-auto max-w-5xl px-6 py-24">
+      <BeachTransition />
+
+      <section id="travel-content" className="mx-auto max-w-5xl px-6 py-24">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -53,7 +95,7 @@ export default function Travel() {
         </motion.h2>
         <p className="mt-3 max-w-2xl text-white/55">
           Organizzare viaggi mi piace davvero: ci passo ore per hobby, quindi tanto vale mettere a frutto la
-          cosa. Ecco dove posso essere utile.
+          cosa. Nessun servizio in vendita: è una mano che offro volentieri, gratis, a chi la vuole.
         </p>
 
         <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -82,7 +124,7 @@ export default function Travel() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <TravelQuiz />
+          <TravelWizard />
         </motion.div>
       </section>
     </div>

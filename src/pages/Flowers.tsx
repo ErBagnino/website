@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useMemo } from 'react'
 import SceneHero from '../components/SceneHero'
 import BouquetScene from '../three/BouquetScene'
 import WhatsAppButton from '../components/WhatsAppButton'
@@ -29,21 +30,58 @@ const STYLES = [
   },
 ]
 
+function FloralBackground() {
+  const blobs = useMemo(
+    () => [
+      { top: '10%', left: '15%', size: 260, color: 'rgba(255,122,184,0.16)' },
+      { top: '55%', left: '75%', size: 320, color: 'rgba(199,146,234,0.14)' },
+      { top: '75%', left: '20%', size: 220, color: 'rgba(126,217,255,0.1)' },
+      { top: '20%', left: '65%', size: 200, color: 'rgba(255,209,102,0.1)' },
+    ],
+    [],
+  )
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <div
+        className="absolute inset-0"
+        style={{ background: 'radial-gradient(ellipse 90% 70% at 30% 20%, #2a1030 0%, #180c22 45%, #0a0612 100%)' }}
+      />
+      {blobs.map((b, i) => (
+        <div
+          key={i}
+          className="float absolute rounded-full blur-3xl"
+          style={{
+            top: b.top,
+            left: b.left,
+            width: b.size,
+            height: b.size,
+            background: b.color,
+            animationDelay: `${i * 1.3}s`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function Flowers() {
   return (
     <div className="bg-void">
       <BackToHub accent={ACCENT} />
       <SceneHero
-        scene={<BouquetScene />}
+        sceneKey="flowers"
+        scene={() => <BouquetScene />}
         lines={['PREPARAZIONE MATERIALI...', 'COMPOSIZIONE BOUQUET...', 'RIFINITURA PETALI...', 'BOUQUET PRONTO']}
         eyebrow="Modulo 03"
         title="Fiori di Filo"
         subtitle="Bouquet fatti a mano con pipe cleaners: metallo morbido e tessuto, pensati per durare per sempre."
         accent={ACCENT}
         cameraPosition={[0, 0.3, 6]}
+        background={<FloralBackground />}
+        contentId="flowers-content"
       />
 
-      <section className="mx-auto max-w-5xl px-6 py-24">
+      <section id="flowers-content" className="mx-auto max-w-5xl px-6 py-24">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -88,7 +126,7 @@ export default function Flowers() {
           <h3 className="font-display text-xl font-bold uppercase tracking-wide text-white">Vuoi un bouquet?</h3>
           <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">
             Raccontami per chi è, che colori preferisce e per quale occasione — il resto lo penso io. Nessun
-            catalogo fisso: ogni bouquet nasce dalla richiesta di chi lo riceverà.
+            catalogo fisso, nessun negozio: è un piccolo regalo che faccio volentieri, non un prodotto in vendita.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <WhatsAppButton
