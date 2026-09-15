@@ -3,6 +3,8 @@ import SceneHero from '../components/SceneHero'
 import PCBootScene from '../three/PCBootScene'
 import WhatsAppButton from '../components/WhatsAppButton'
 import BackToHub from '../components/BackToHub'
+import GalleryGrid from '../components/GalleryGrid'
+import { useDocumentMeta } from '../lib/seo'
 
 const ACCENT = '#38f0e0'
 
@@ -41,12 +43,20 @@ const BG = (
 )
 
 export default function Tech() {
+  useDocumentMeta({
+    title: 'Tech & AI | Adam Javurek — Loghi, grafiche e siti con l’AI',
+    description:
+      'Loghi, identità visiva, grafiche social e siti web realizzati con l’aiuto dell’intelligenza artificiale. Nessun listino: raccontami cosa ti serve su WhatsApp.',
+    path: '/tech',
+  })
+
   return (
     <div className="bg-void">
       <BackToHub accent={ACCENT} />
       <SceneHero
         sceneKey="tech"
         scene={(settled) => <PCBootScene settled={settled} />}
+        sceneLabel="Animazione 3D di un computer che si accende in sequenza: monitor, tastiera retroilluminata e LED della torre"
         lines={['AVVIO SISTEMA...', 'CARICAMENTO MODULI GRAFICI...', 'RETI NEURALI ATTIVE', 'SISTEMA PRONTO']}
         eyebrow="Modulo 01"
         title="Tech & AI"
@@ -87,6 +97,34 @@ export default function Tech() {
               <p className="mt-2 text-sm leading-relaxed text-white/55">{s.text}</p>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-6 pb-24">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl"
+        >
+          Qualche lavoro
+        </motion.h2>
+        <p className="mt-3 max-w-2xl text-white/55">
+          Un assaggio di cose fatte finora. Man mano che ne aggiungo altre, questa galleria si aggiorna.
+        </p>
+        <div className="mt-8">
+          {/* TODO: sostituire con immagini reali — carica i file in /public/gallery/
+              con questi nomi esatti (jpg, png o webp) e i placeholder tratteggiati
+              spariranno da soli, sostituiti dalla foto vera. */}
+          <GalleryGrid
+            accent={ACCENT}
+            items={[
+              { src: '/gallery/tech-logo-1.jpg', alt: 'Esempio di logo realizzato', caption: 'Logo — esempio 1' },
+              { src: '/gallery/tech-grafica-1.jpg', alt: 'Esempio di grafica social', caption: 'Grafica social' },
+              { src: '/gallery/tech-sito-1.jpg', alt: 'Screenshot di un sito realizzato', caption: 'Sito web — esempio 1' },
+              { src: '/gallery/tech-sito-2.jpg', alt: 'Screenshot di un altro sito realizzato', caption: 'Sito web — esempio 2' },
+            ]}
+          />
         </div>
       </section>
 

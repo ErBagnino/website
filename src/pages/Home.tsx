@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import ArcReactorScene from '../three/ArcReactorScene'
+import Scene3D from '../components/Scene3D'
 import { useSeenOnce } from '../lib/persist'
+import { useDocumentMeta } from '../lib/seo'
 
 const BOOT_LINES = [
   'INIZIALIZZAZIONE INTERFACCIA...',
@@ -37,6 +38,12 @@ const HUBS = [
 ]
 
 export default function Home() {
+  useDocumentMeta({
+    title: 'Adam Javurek — Portfolio interattivo',
+    description:
+      'Portfolio personale di Adam Javurek: aiuto con progetti Tech & AI, organizzazione di viaggi e bouquet di fiori di filo fatti a mano. Scrivimi su WhatsApp per parlarne.',
+    path: '/',
+  })
   const [seen, markSeen] = useSeenOnce('home')
   const [stage, setStage] = useState<'booting' | 'ready'>(seen ? 'ready' : 'booting')
   const [lineIndex, setLineIndex] = useState(seen ? BOOT_LINES.length : 0)
@@ -59,9 +66,12 @@ export default function Home() {
     <div className="relative min-h-screen w-full overflow-hidden bg-void">
       <div className="hud-grid absolute inset-0 z-0" />
       <div className="absolute inset-0 z-10">
-        <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
+        <Scene3D
+          label="Animazione 3D di un reattore energetico stile HUD che si accende e poi si allarga verso i bordi dello schermo"
+          camera={{ position: [0, 0, 6], fov: 50 }}
+        >
           <ArcReactorScene scatter={stage === 'ready'} instant={seen} />
-        </Canvas>
+        </Scene3D>
       </div>
       <motion.div
         className="pointer-events-none absolute inset-0 z-15"
@@ -101,7 +111,7 @@ export default function Home() {
                 setStage('ready')
                 markSeen()
               }}
-              className="mt-10 font-display text-[10px] uppercase tracking-widest text-white/30 underline decoration-dotted underline-offset-4 hover:text-white/70"
+              className="mt-10 font-display text-[10px] uppercase tracking-widest text-white/50 underline decoration-dotted underline-offset-4 hover:text-white/70"
             >
               salta intro
             </button>
@@ -177,7 +187,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.1 }}
-              className="mt-16 text-center text-[11px] uppercase tracking-[0.3em] text-white/25"
+              className="mt-16 text-center text-[11px] uppercase tracking-[0.3em] text-white/50"
             >
               Nessun listino, nessun pacchetto. Solo quello che so fare.
             </motion.p>

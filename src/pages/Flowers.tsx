@@ -4,6 +4,8 @@ import SceneHero from '../components/SceneHero'
 import BouquetScene from '../three/BouquetScene'
 import WhatsAppButton from '../components/WhatsAppButton'
 import BackToHub from '../components/BackToHub'
+import GalleryGrid from '../components/GalleryGrid'
+import { useDocumentMeta } from '../lib/seo'
 
 const ACCENT = '#ff7ab8'
 
@@ -65,12 +67,20 @@ function FloralBackground() {
 }
 
 export default function Flowers() {
+  useDocumentMeta({
+    title: 'Fiori di Filo | Adam Javurek — Bouquet fatti a mano',
+    description:
+      'Bouquet fatti a mano con pipe cleaners, il filo morbido rivestito in metallo: fiori che non appassiscono mai. Scrivimi su WhatsApp per un bouquet su misura.',
+    path: '/flowers',
+  })
+
   return (
     <div className="bg-void">
       <BackToHub accent={ACCENT} />
       <SceneHero
         sceneKey="flowers"
         scene={() => <BouquetScene />}
+        sceneLabel="Animazione 3D di un bouquet di fiori di filo che si compone pezzo per pezzo dentro un vaso di carta"
         lines={['PREPARAZIONE MATERIALI...', 'COMPOSIZIONE BOUQUET...', 'RIFINITURA PETALI...', 'BOUQUET PRONTO']}
         eyebrow="Modulo 03"
         title="Fiori di Filo"
@@ -113,6 +123,32 @@ export default function Flowers() {
               <p className="mt-2 text-sm leading-relaxed text-white/55">{s.text}</p>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-6 pb-24">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl"
+        >
+          Qualche bouquet fatto
+        </motion.h2>
+        <p className="mt-3 max-w-2xl text-white/55">Un piccolo assaggio di quelli creati finora.</p>
+        <div className="mt-8">
+          {/* TODO: sostituire con foto reali — carica i file in /public/gallery/
+              con questi nomi esatti (jpg, png o webp) e i placeholder tratteggiati
+              spariranno da soli, sostituiti dalla foto vera. */}
+          <GalleryGrid
+            accent={ACCENT}
+            items={[
+              { src: '/gallery/flowers-bouquet-1.jpg', alt: 'Bouquet di fiori di filo, esempio 1', caption: 'Bouquet — esempio 1' },
+              { src: '/gallery/flowers-bouquet-2.jpg', alt: 'Bouquet di fiori di filo, esempio 2', caption: 'Bouquet — esempio 2' },
+              { src: '/gallery/flowers-bouquet-3.jpg', alt: 'Bouquet di fiori di filo, esempio 3', caption: 'Bouquet — esempio 3' },
+              { src: '/gallery/flowers-mini-1.jpg', alt: 'Mini bouquet di fiori di filo', caption: 'Mini bouquet' },
+            ]}
+          />
         </div>
       </section>
 

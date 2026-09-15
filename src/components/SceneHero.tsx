@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Canvas } from '@react-three/fiber'
 import { motion, AnimatePresence } from 'framer-motion'
+import Scene3D from './Scene3D'
 import { useSeenOnce } from '../lib/persist'
 
 interface SceneHeroProps {
   sceneKey: string
   scene: (settled: boolean) => ReactNode
+  /** Describes this hero's 3D animation for screen readers and the no-WebGL fallback. */
+  sceneLabel: string
   lines: string[]
   eyebrow: string
   title: string
@@ -19,6 +21,7 @@ interface SceneHeroProps {
 export default function SceneHero({
   sceneKey,
   scene,
+  sceneLabel,
   lines,
   eyebrow,
   title,
@@ -87,7 +90,9 @@ export default function SceneHero({
       <div className="absolute inset-0 z-0">{background}</div>
 
       <div className="relative z-10 h-[42%] w-full lg:h-full lg:w-1/2">
-        <Canvas camera={{ position: cameraPosition, fov: 50 }}>{scene(settled)}</Canvas>
+        <Scene3D label={sceneLabel} camera={{ position: cameraPosition, fov: 50 }}>
+          {scene(settled)}
+        </Scene3D>
       </div>
 
       <div className="relative z-20 flex flex-1 flex-col items-start justify-center px-6 py-8 lg:w-1/2 lg:px-14">
@@ -142,7 +147,7 @@ export default function SceneHero({
                   userScrolled.current = true
                   document.getElementById(contentId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }}
-                className="mt-8 flex items-center gap-2 font-display text-[10px] uppercase tracking-[0.3em] text-white/40 transition hover:text-white/80"
+                className="mt-8 flex items-center gap-2 font-display text-[10px] uppercase tracking-[0.3em] text-white/50 transition hover:text-white/80"
               >
                 scorri per esplorare
                 <span aria-hidden className="animate-pulse">

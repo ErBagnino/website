@@ -5,6 +5,7 @@ import PlaneFlyoverScene from '../three/PlaneFlyoverScene'
 import BackToHub from '../components/BackToHub'
 import TravelWizard from '../components/TravelWizard'
 import BeachTransition from '../components/BeachTransition'
+import { useDocumentMeta } from '../lib/seo'
 
 const ACCENT = '#ffb454'
 
@@ -67,12 +68,20 @@ function DuskSky() {
 }
 
 export default function Travel() {
+  useDocumentMeta({
+    title: 'Viaggi | Adam Javurek — Itinerari, hotel e ristoranti su misura',
+    description:
+      'Una mano gratuita per organizzare il tuo viaggio: hotel, voli, itinerari, ristoranti locali ed esperienze, con l’aiuto dell’AI. Compila il questionario su WhatsApp.',
+    path: '/travel',
+  })
+
   return (
     <div className="bg-void">
       <BackToHub accent={ACCENT} />
       <SceneHero
         sceneKey="travel"
         scene={() => <PlaneFlyoverScene />}
+        sceneLabel="Animazione 3D di un aereo che vola tra le nuvole in un cielo al tramonto"
         lines={['TRACCIANDO ROTTA...', 'RICERCA DESTINAZIONI...', 'OTTIMIZZAZIONE ITINERARIO...', 'PRONTI AL DECOLLO']}
         eyebrow="Modulo 02"
         title="Viaggi"

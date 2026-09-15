@@ -93,7 +93,7 @@ function CalendarPicker({ start, end, onPick }: { start: Date | null; end: Date 
       </div>
       <div className="grid grid-cols-7 gap-1 text-center">
         {WEEKDAYS.map((w, i) => (
-          <span key={i} className="py-1 text-[10px] uppercase text-white/30">
+          <span key={i} className="py-1 text-[10px] uppercase text-white/45">
             {w}
           </span>
         ))}
@@ -119,7 +119,7 @@ function CalendarPicker({ start, end, onPick }: { start: Date | null; end: Date 
           ),
         )}
       </div>
-      <p className="mt-3 text-center text-xs text-white/40">
+      <p className="mt-3 text-center text-xs text-white/50">
         {start && end
           ? `Dal ${fmtDate(start)} al ${fmtDate(end)}`
           : start
@@ -147,7 +147,7 @@ function CountryPicker({ value, onChange }: { value: string | null; onChange: (c
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-left text-sm text-white focus:border-travel focus:outline-none"
       >
-        <span className={selected ? '' : 'text-white/30'}>
+        <span className={selected ? '' : 'text-white/45'}>
           {selected ? (
             <>
               <span className="mr-2 text-lg">{selected.flag}</span>
@@ -159,7 +159,7 @@ function CountryPicker({ value, onChange }: { value: string | null; onChange: (c
             'Scegli un paese...'
           )}
         </span>
-        <span className="text-white/30">▾</span>
+        <span className="text-white/45">▾</span>
       </button>
       {open && (
         <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-white/10 bg-[#0a0f18] shadow-2xl">
@@ -168,7 +168,7 @@ function CountryPicker({ value, onChange }: { value: string | null; onChange: (c
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cerca un paese..."
-            className="w-full border-b border-white/10 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none"
+            className="w-full border-b border-white/10 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
           />
           <button
             type="button"
@@ -197,7 +197,7 @@ function CountryPicker({ value, onChange }: { value: string | null; onChange: (c
                 {c.name}
               </button>
             ))}
-            {filtered.length === 0 && <p className="px-4 py-3 text-sm text-white/40">Nessun paese trovato</p>}
+            {filtered.length === 0 && <p className="px-4 py-3 text-sm text-white/50">Nessun paese trovato</p>}
           </div>
         </div>
       )}
@@ -342,7 +342,7 @@ export default function TravelWizard() {
                   value={otherNeed}
                   onChange={(e) => setOtherNeed(e.target.value)}
                   placeholder="Es. noleggio auto, visto, assicurazione di viaggio..."
-                  className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-travel focus:outline-none"
+                  className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-travel focus:outline-none"
                 />
               </div>
             </div>
@@ -429,7 +429,7 @@ export default function TravelWizard() {
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
                   placeholder="Allergie, mobilità ridotta, animali al seguito, preferenze particolari..."
-                  className="w-full resize-none rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-travel focus:outline-none"
+                  className="w-full resize-none rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-travel focus:outline-none"
                 />
               </div>
             </div>
@@ -453,7 +453,7 @@ export default function TravelWizard() {
           <button
             onClick={goBack}
             disabled={step === 0}
-            className="font-display text-xs uppercase tracking-widest text-white/40 transition hover:text-white/80 disabled:opacity-0"
+            className="font-display text-xs uppercase tracking-widest text-white/50 transition hover:text-white/80 disabled:opacity-0"
           >
             ‹ Indietro
           </button>
@@ -472,7 +472,7 @@ export default function TravelWizard() {
             setStep(0)
             setStarted(false)
           }}
-          className="mt-6 font-display text-xs uppercase tracking-widest text-white/40 hover:text-white/80"
+          className="mt-6 font-display text-xs uppercase tracking-widest text-white/50 hover:text-white/80"
         >
           ‹ Ricomincia il questionario
         </button>

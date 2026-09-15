@@ -2,16 +2,86 @@
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/website/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Adam Javurek — Portfolio</title>
-    <meta name="description" content="Portfolio personale: soluzioni AI, viaggi su misura e bouquet fatti a mano. Scrivimi per una chiacchierata." />
+
+    <!--
+      Single Page Apps for GitHub Pages — decoding half of the trick.
+      https://github.com/rafgraph/spa-github-pages
+      Must run before React Router reads the URL, so it's an early inline
+      script rather than something inside src/. See public/404.html for the
+      encoding half and vite.config.ts for the pathSegmentsToKeep note.
+    -->
+    <script>
+      ;(function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search
+            .slice(1)
+            .split('&')
+            .map(function (s) {
+              return s.replace(/~and~/g, '&')
+            })
+            .join('?')
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash)
+        }
+      })(window.location)
+    </script>
+
+    <title>Adam Javurek — Portfolio interattivo</title>
+    <meta
+      name="description"
+      content="Portfolio personale di Adam Javurek: aiuto con progetti Tech & AI, organizzazione di viaggi e bouquet di fiori di filo fatti a mano. Scrivimi su WhatsApp per parlarne."
+    />
+    <link rel="canonical" href="https://erbagnino.github.io/website/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Adam Javurek — Portfolio" />
+    <meta property="og:title" content="Adam Javurek — Portfolio interattivo" />
+    <meta
+      property="og:description"
+      content="Portfolio personale di Adam Javurek: aiuto con progetti Tech & AI, organizzazione di viaggi e bouquet di fiori di filo fatti a mano."
+    />
+    <meta property="og:url" content="https://erbagnino.github.io/website/" />
+    <meta property="og:image" content="https://erbagnino.github.io/website/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Adam Javurek — Portfolio interattivo" />
+    <meta
+      name="twitter:description"
+      content="Portfolio personale di Adam Javurek: aiuto con progetti Tech & AI, organizzazione di viaggi e bouquet di fiori di filo fatti a mano."
+    />
+    <meta name="twitter:image" content="https://erbagnino.github.io/website/og-image.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!--
+        Minimal content visible before React mounts (and to crawlers or
+        scrapers that don't execute JavaScript). React replaces all of this
+        the moment the app loads — see src/pages/*.tsx for the real, animated
+        pages. Kept in sync by hand with the four routes; update it if you
+        add or rename a section.
+      -->
+      <main style="background: #05070c; color: #e8fbf6; min-height: 100vh; padding: 4rem 1.5rem; font-family: sans-serif">
+        <h1>Adam Javurek — Portfolio interattivo</h1>
+        <p>
+          Aiuto con progetti Tech &amp; AI (loghi, grafiche, siti), organizzazione di viaggi su misura e bouquet di
+          fiori di filo fatti a mano.
+        </p>
+        <nav>
+          <ul>
+            <li><a href="/website/tech">Tech &amp; AI — loghi, grafiche e siti con l'intelligenza artificiale</a></li>
+            <li><a href="/website/travel">Viaggi — itinerari, hotel e ristoranti su misura</a></li>
+            <li><a href="/website/flowers">Fiori di Filo — bouquet fatti a mano con pipe cleaners</a></li>
+          </ul>
+        </nav>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
