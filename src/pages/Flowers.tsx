@@ -4,7 +4,6 @@ import SceneHero from '../components/SceneHero'
 import BouquetScene from '../three/BouquetScene'
 import WhatsAppButton from '../components/WhatsAppButton'
 import BackToHub from '../components/BackToHub'
-import GalleryGrid from '../components/GalleryGrid'
 import { useDocumentMeta } from '../lib/seo'
 
 const ACCENT = '#ff7ab8'
@@ -29,6 +28,25 @@ const STYLES = [
     icon: '✾',
     title: 'Su misura',
     text: 'Colori, forma e dimensione decisi insieme a te, per un’idea più personale.',
+  },
+]
+
+const CUSTOMIZE = [
+  {
+    title: 'Colori',
+    text: 'Scegli la palette: un colore solo per un effetto pulito, oppure un mix — dimmi cosa preferisce chi lo riceve.',
+  },
+  {
+    title: 'Dimensione',
+    text: 'Da un fiore singolo a un bouquet pieno: quanto spazio deve occupare il regalo.',
+  },
+  {
+    title: 'Occasione',
+    text: 'Compleanno, laurea, "pensavo a te" — mi aiuta a scegliere forma e tono giusti.',
+  },
+  {
+    title: 'Nessun originale identico',
+    text: 'Ogni fiore è piegato a mano: piccole irregolarità comprese, è quello che li rende fatti apposta per una persona.',
   },
 ]
 
@@ -133,22 +151,25 @@ export default function Flowers() {
           viewport={{ once: true }}
           className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl"
         >
-          Qualche bouquet fatto
+          Cosa puoi decidere tu
         </motion.h2>
-        <p className="mt-3 max-w-2xl text-white/55">Un piccolo assaggio di quelli creati finora.</p>
-        <div className="mt-8">
-          {/* TODO: sostituire con foto reali — carica i file in /public/gallery/
-              con questi nomi esatti (jpg, png o webp) e i placeholder tratteggiati
-              spariranno da soli, sostituiti dalla foto vera. */}
-          <GalleryGrid
-            accent={ACCENT}
-            items={[
-              { src: '/gallery/flowers-bouquet-1.jpg', alt: 'Bouquet di fiori di filo, esempio 1', caption: 'Bouquet — esempio 1' },
-              { src: '/gallery/flowers-bouquet-2.jpg', alt: 'Bouquet di fiori di filo, esempio 2', caption: 'Bouquet — esempio 2' },
-              { src: '/gallery/flowers-bouquet-3.jpg', alt: 'Bouquet di fiori di filo, esempio 3', caption: 'Bouquet — esempio 3' },
-              { src: '/gallery/flowers-mini-1.jpg', alt: 'Mini bouquet di fiori di filo', caption: 'Mini bouquet' },
-            ]}
-          />
+        <p className="mt-3 max-w-2xl text-white/55">
+          Non c’è un catalogo con modelli fissi: ogni bouquet parte da zero, in base a quello che mi racconti.
+        </p>
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {CUSTOMIZE.map((s, i) => (
+            <motion.div
+              key={s.title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
+              className="corner-frame panel-glass rounded-2xl p-6 text-flora"
+            >
+              <h3 className="font-display text-lg font-semibold uppercase tracking-wide text-white">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-white/55">{s.text}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 

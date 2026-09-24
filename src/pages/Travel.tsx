@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion'
 import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import SceneHero from '../components/SceneHero'
 import PlaneFlyoverScene from '../three/PlaneFlyoverScene'
 import BackToHub from '../components/BackToHub'
-import TravelWizard from '../components/TravelWizard'
 import BeachTransition from '../components/BeachTransition'
 import { useDocumentMeta } from '../lib/seo'
 
@@ -132,8 +132,22 @@ export default function Travel() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          className="corner-frame panel-glass rounded-2xl p-8 text-center text-travel sm:p-14"
         >
-          <TravelWizard />
+          <h3 className="font-display text-xl font-bold uppercase tracking-wide text-white sm:text-2xl">
+            Componi la tua richiesta
+          </h3>
+          <p className="mx-auto mt-3 max-w-md text-sm text-white/55">
+            Un questionario guidato in pochi passaggi — destinazione su una mappa interattiva, date, stile, budget e
+            preferenze. Alla fine preparo io il messaggio con tutti i dettagli, tu premi solo invio.
+          </p>
+          <Link
+            to="/travel/questionnaire"
+            style={{ background: ACCENT }}
+            className="mt-8 inline-block rounded-full px-8 py-3 font-display text-sm uppercase tracking-widest text-void transition hover:scale-105"
+          >
+            Inizia la tua richiesta
+          </Link>
         </motion.div>
       </section>
     </div>

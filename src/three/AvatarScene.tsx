@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState, type ReactNode } from 'react'
 import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 
@@ -109,7 +109,12 @@ interface AvatarSceneProps {
   onInteract?: () => void
 }
 
-export default function AvatarScene({ onInteract }: AvatarSceneProps) {
+export interface AvatarSceneHandle {
+  /** Nudges the avatar's rotation — used by the keyboard-accessible rotate buttons. */
+  spin: (direction: 1 | -1) => void
+}
+
+function AvatarScene({ onInteract }: AvatarSceneProps, ref: React.ForwardedRef<AvatarSceneHandle>) {
   const rig = useRef<THREE.Group>(null)
   const dragging = useRef(false)
   const lastX = useRef(0)
@@ -164,6 +169,14 @@ export default function AvatarScene({ onInteract }: AvatarSceneProps) {
     dragging.current = false
   }
 
+  useImperativeHandle(ref, () => ({
+    spin: (direction: 1 | -1) => {
+      if (rig.current) rig.current.rotation.y += direction * 0.5
+      velocity.current = direction * 1.2
+      onInteract?.()
+    },
+  }))
+
   return (
     <>
       <ambientLight intensity={0.35} />
@@ -192,3 +205,5 @@ export default function AvatarScene({ onInteract }: AvatarSceneProps) {
     </>
   )
 }
+
+export default forwardRef(AvatarScene)

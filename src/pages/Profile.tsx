@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import BackToHub from '../components/BackToHub'
 import Scene3D from '../components/Scene3D'
-import AvatarScene from '../three/AvatarScene'
+import AvatarScene, { type AvatarSceneHandle } from '../three/AvatarScene'
 import WhatsAppButton from '../components/WhatsAppButton'
 import { useDocumentMeta } from '../lib/seo'
 import { withBase } from '../lib/url'
@@ -110,6 +110,7 @@ function HudMessage() {
 }
 
 export default function Profile() {
+  const avatarRef = useRef<AvatarSceneHandle>(null)
   useDocumentMeta({
     title: 'Profilo & CV | Adam Gabriele Javurek',
     description:
@@ -201,9 +202,29 @@ export default function Profile() {
             label="Avatar 3D olografico di Adam: trascinalo per ruotarlo a 360 gradi"
             camera={{ position: [0, 0.1, 3.4], fov: 42 }}
           >
-            <AvatarScene />
+            <AvatarScene ref={avatarRef} />
           </Scene3D>
           <HudMessage />
+          <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-3">
+            <button
+              type="button"
+              onClick={() => avatarRef.current?.spin(-1)}
+              aria-label="Ruota l'avatar verso sinistra"
+              style={{ color: ACCENT, borderColor: 'rgba(207,227,232,0.35)' }}
+              className="panel-glass flex h-9 w-9 items-center justify-center rounded-full border transition hover:scale-105"
+            >
+              ◀
+            </button>
+            <button
+              type="button"
+              onClick={() => avatarRef.current?.spin(1)}
+              aria-label="Ruota l'avatar verso destra"
+              style={{ color: ACCENT, borderColor: 'rgba(207,227,232,0.35)' }}
+              className="panel-glass flex h-9 w-9 items-center justify-center rounded-full border transition hover:scale-105"
+            >
+              ▶
+            </button>
+          </div>
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Scene3D from './Scene3D'
 import { useSeenOnce } from '../lib/persist'
+import { usePrefersReducedMotion } from '../lib/motion'
 
 interface SceneHeroProps {
   sceneKey: string
@@ -32,6 +33,7 @@ export default function SceneHero({
   contentId = 'content',
 }: SceneHeroProps) {
   const [, markSeen] = useSeenOnce(`hero:${sceneKey}`)
+  const reducedMotion = usePrefersReducedMotion()
   // Snapshot "already seen" at mount time only — markSeen() below flips the live
   // value reactively, but that must never retroactively change how *this* visit behaves.
   const wasSeen = useRef((() => {
@@ -75,7 +77,7 @@ export default function SceneHero({
   }, [])
 
   useEffect(() => {
-    if (!settled || wasSeen) return
+    if (!settled || wasSeen || reducedMotion) return
     const t = setTimeout(() => {
       if (!userScrolled.current) {
         document.getElementById(contentId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -83,7 +85,7 @@ export default function SceneHero({
     }, 450)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settled, contentId])
+  }, [settled, contentId, reducedMotion])
 
   return (
     <section className="relative flex h-[100svh] w-full flex-col overflow-hidden bg-void lg:flex-row">

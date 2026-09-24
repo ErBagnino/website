@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion'
 
-function Palm({ x, scale = 1, flip = false }: { x: string; scale?: number; flip?: boolean }) {
+function Palm({ x, scale = 1, flip = false, opacity = 1 }: { x: string; scale?: number; flip?: boolean; opacity?: number }) {
   return (
     <div
       className="beach-sway absolute bottom-0 origin-bottom"
-      style={{ left: x, transform: `scale(${scale}) ${flip ? 'scaleX(-1)' : ''}` }}
+      style={{ left: x, transform: `scale(${scale}) ${flip ? 'scaleX(-1)' : ''}`, opacity }}
     >
       <svg width="90" height="150" viewBox="0 0 90 150" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M45 150 C 40 100, 55 70, 48 30" stroke="#1c2e2a" strokeWidth="6" strokeLinecap="round" />
@@ -22,9 +22,84 @@ function Palm({ x, scale = 1, flip = false }: { x: string; scale?: number; flip?
   )
 }
 
+function Bush({ x, scale = 1 }: { x: string; scale?: number }) {
+  return (
+    <div className="bush-rustle absolute bottom-0 origin-bottom" style={{ left: x, transform: `scale(${scale})` }}>
+      <svg width="46" height="26" viewBox="0 0 46 26" fill="none">
+        <ellipse cx="12" cy="18" rx="12" ry="8" fill="#254f3c" />
+        <ellipse cx="26" cy="14" rx="15" ry="10" fill="#2c5c46" />
+        <ellipse cx="38" cy="19" rx="9" ry="7" fill="#254f3c" />
+      </svg>
+    </div>
+  )
+}
+
+function DistantPerson({ x, delay = 0, scale = 1 }: { x: string; delay?: number; scale?: number }) {
+  return (
+    <div
+      className="stroll absolute bottom-[19%]"
+      style={{ left: x, animationDelay: `${delay}s`, transform: `scale(${scale})` }}
+    >
+      <svg width="8" height="18" viewBox="0 0 8 18" fill="none" opacity={0.55}>
+        <circle cx="4" cy="3" r="2.2" fill="#1a1410" />
+        <path d="M4 5.5 L4 12 M4 8 L1 10 M4 8 L7 10 M4 12 L2 17 M4 12 L6 17" stroke="#1a1410" strokeWidth="1.3" strokeLinecap="round" />
+      </svg>
+    </div>
+  )
+}
+
+function VolleyballPlayer({ x, delay = 0, flip = false }: { x: string; delay?: number; flip?: boolean }) {
+  return (
+    <div
+      className="player-bob absolute bottom-[16%] origin-bottom"
+      style={{ left: x, animationDelay: `${delay}s`, transform: flip ? 'scaleX(-1)' : undefined }}
+    >
+      <svg width="16" height="30" viewBox="0 0 16 30" fill="none">
+        <circle cx="8" cy="5" r="3.2" fill="#e7cf9a" />
+        <path d="M8 8.5 L8 18" stroke="#ffb454" strokeWidth="2.6" strokeLinecap="round" />
+        <path d="M8 11 L2 7 M8 11 L14 7" stroke="#e7cf9a" strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M8 18 L4 29 M8 18 L12 29" stroke="#1c3a42" strokeWidth="2.4" strokeLinecap="round" />
+      </svg>
+    </div>
+  )
+}
+
+function VolleyballCourt() {
+  return (
+    <div className="absolute bottom-[6%] left-[38%] h-[16%] w-[24%] min-w-[190px]">
+      <svg viewBox="0 0 200 90" className="h-full w-full overflow-visible" preserveAspectRatio="none">
+        <rect x="6" y="10" width="188" height="70" rx="3" stroke="#fff" strokeOpacity="0.4" strokeWidth="1.6" fill="#e0c07f" fillOpacity="0.18" />
+        <line x1="100" y1="0" x2="100" y2="90" stroke="#fff" strokeOpacity="0.5" strokeWidth="1.4" strokeDasharray="3 3" />
+        <line x1="100" y1="4" x2="100" y2="44" stroke="#cbb27a" strokeWidth="3" />
+        {Array.from({ length: 7 }).map((_, i) => (
+          <line key={i} x1={100} y1={4 + i * 5.5} x2={94} y2={4 + i * 5.5} stroke="#cbb27a" strokeWidth="1" opacity={0.7} />
+        ))}
+      </svg>
+      <VolleyballPlayer x="14%" delay={0} />
+      <VolleyballPlayer x="30%" delay={0.9} flip />
+      <VolleyballPlayer x="66%" delay={0.4} />
+      <VolleyballPlayer x="82%" delay={1.3} flip />
+    </div>
+  )
+}
+
+function Ship() {
+  return (
+    <div className="ship-drift absolute top-[30%] left-0 opacity-70">
+      <svg width="54" height="20" viewBox="0 0 54 20" fill="none">
+        <path d="M4 12 L50 12 L44 18 L10 18 Z" fill="#0b2a30" />
+        <rect x="14" y="4" width="3" height="8" fill="#0b2a30" />
+        <rect x="22" y="2" width="3" height="10" fill="#0b2a30" />
+        <rect x="30" y="5" width="3" height="7" fill="#0b2a30" />
+        <line x1="4" y1="12" x2="50" y2="12" stroke="#12383f" strokeWidth="1.4" />
+      </svg>
+    </div>
+  )
+}
+
 export default function BeachTransition() {
   return (
-    <div className="relative h-[46vh] w-full overflow-hidden sm:h-[52vh]">
+    <div className="relative h-[52vh] w-full overflow-hidden sm:h-[58vh]">
       <div
         className="absolute inset-0"
         style={{
@@ -32,6 +107,8 @@ export default function BeachTransition() {
             'linear-gradient(180deg, #7a5230 0%, #d9a65c 12%, #ffd77a 22%, #4fb3a8 42%, #1c7b83 68%, #0c4a55 100%)',
         }}
       />
+
+      <Ship />
 
       <svg
         className="wave-scroll absolute left-0 top-[26%] h-[70%] w-[200%] opacity-70"
@@ -55,17 +132,30 @@ export default function BeachTransition() {
       </svg>
 
       <svg
-        className="absolute bottom-0 left-0 h-[22%] w-full"
+        className="absolute bottom-0 left-0 h-[26%] w-full"
         viewBox="0 0 1200 200"
         preserveAspectRatio="none"
       >
         <path d="M0 90 C 300 40, 900 140, 1200 70 L1200 200 L0 200 Z" fill="#e7cf9a" />
       </svg>
 
-      <Palm x="6%" scale={0.9} />
-      <Palm x="16%" scale={1.2} />
-      <Palm x="82%" scale={1.1} flip />
-      <Palm x="92%" scale={0.8} flip />
+      <DistantPerson x="24%" delay={0} />
+      <DistantPerson x="46%" delay={2.4} scale={0.85} />
+      <DistantPerson x="60%" delay={4.8} />
+      <DistantPerson x="73%" delay={1.6} scale={0.9} />
+
+      <VolleyballCourt />
+
+      <Bush x="1%" scale={1.1} />
+      <Bush x="95%" scale={0.9} />
+      <Bush x="11%" scale={0.7} />
+
+      <Palm x="4%" scale={0.55} opacity={0.5} />
+      <Palm x="8%" scale={0.95} />
+      <Palm x="18%" scale={1.25} />
+      <Palm x="80%" scale={1.15} flip />
+      <Palm x="90%" scale={0.9} flip />
+      <Palm x="95%" scale={0.5} flip opacity={0.5} />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
