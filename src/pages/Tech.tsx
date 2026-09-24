@@ -3,7 +3,7 @@ import SceneHero from '../components/SceneHero'
 import PCBootScene from '../three/PCBootScene'
 import WhatsAppButton from '../components/WhatsAppButton'
 import BackToHub from '../components/BackToHub'
-import GalleryGrid from '../components/GalleryGrid'
+import ProjectMockups from '../components/ProjectMockups'
 import { useDocumentMeta } from '../lib/seo'
 
 const ACCENT = '#38f0e0'
@@ -44,7 +44,7 @@ const BG = (
 
 export default function Tech() {
   useDocumentMeta({
-    title: 'Tech & AI | Adam Javurek — Loghi, grafiche e siti con l’AI',
+    title: 'Tech & AI | Adam Gabriele Javurek — Loghi, grafiche e siti con l’AI',
     description:
       'Loghi, identità visiva, grafiche social e siti web realizzati con l’aiuto dell’intelligenza artificiale. Nessun listino: raccontami cosa ti serve su WhatsApp.',
     path: '/tech',
@@ -110,21 +110,10 @@ export default function Tech() {
           Qualche lavoro
         </motion.h2>
         <p className="mt-3 max-w-2xl text-white/55">
-          Un assaggio di cose fatte finora. Man mano che ne aggiungo altre, questa galleria si aggiorna.
+          Quattro esempi che mostrano lo stile a cui punto — concept dimostrativi, non lavori commissionati.
         </p>
         <div className="mt-8">
-          {/* TODO: sostituire con immagini reali — carica i file in /public/gallery/
-              con questi nomi esatti (jpg, png o webp) e i placeholder tratteggiati
-              spariranno da soli, sostituiti dalla foto vera. */}
-          <GalleryGrid
-            accent={ACCENT}
-            items={[
-              { src: '/gallery/tech-logo-1.jpg', alt: 'Esempio di logo realizzato', caption: 'Logo — esempio 1' },
-              { src: '/gallery/tech-grafica-1.jpg', alt: 'Esempio di grafica social', caption: 'Grafica social' },
-              { src: '/gallery/tech-sito-1.jpg', alt: 'Screenshot di un sito realizzato', caption: 'Sito web — esempio 1' },
-              { src: '/gallery/tech-sito-2.jpg', alt: 'Screenshot di un altro sito realizzato', caption: 'Sito web — esempio 2' },
-            ]}
-          />
+          <ProjectMockups />
         </div>
       </section>
 
@@ -145,7 +134,7 @@ export default function Tech() {
             <WhatsAppButton
               accent={ACCENT}
               message="Ciao Adam! Ho visto la sezione Tech & AI del tuo portfolio e vorrei parlarti di un'idea (logo / grafica / sito). Ti va di sentirci?"
-              label="Parliamone su WhatsApp"
+              label="Parliamone"
               big
             />
           </div>

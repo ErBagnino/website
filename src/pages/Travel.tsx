@@ -69,7 +69,7 @@ function DuskSky() {
 
 export default function Travel() {
   useDocumentMeta({
-    title: 'Viaggi | Adam Javurek — Itinerari, hotel e ristoranti su misura',
+    title: 'Viaggi | Adam Gabriele Javurek — Itinerari, hotel e ristoranti su misura',
     description:
       'Una mano gratuita per organizzare il tuo viaggio: hotel, voli, itinerari, ristoranti locali ed esperienze, con l’aiuto dell’AI. Compila il questionario su WhatsApp.',
     path: '/travel',

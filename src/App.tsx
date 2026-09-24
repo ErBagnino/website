@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import ScrollToTop from './components/ScrollToTop'
 
 const Home = lazy(() => import('./pages/Home'))
+const Profile = lazy(() => import('./pages/Profile'))
 const Tech = lazy(() => import('./pages/Tech'))
 const Travel = lazy(() => import('./pages/Travel'))
 const Flowers = lazy(() => import('./pages/Flowers'))
@@ -24,6 +25,7 @@ export default function App() {
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/tech" element={<Tech />} />
           <Route path="/travel" element={<Travel />} />
           <Route path="/flowers" element={<Flowers />} />

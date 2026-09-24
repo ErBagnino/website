@@ -68,7 +68,7 @@ function FloralBackground() {
 
 export default function Flowers() {
   useDocumentMeta({
-    title: 'Fiori di Filo | Adam Javurek — Bouquet fatti a mano',
+    title: 'Fiori di Filo | Adam Gabriele Javurek — Bouquet fatti a mano',
     description:
       'Bouquet fatti a mano con pipe cleaners, il filo morbido rivestito in metallo: fiori che non appassiscono mai. Scrivimi su WhatsApp per un bouquet su misura.',
     path: '/flowers',
@@ -168,7 +168,7 @@ export default function Flowers() {
             <WhatsAppButton
               accent={ACCENT}
               message="Ciao Adam! Ho visto i tuoi bouquet di fiori di filo (pipe cleaners) e mi piacerebbe chiederti di crearne uno. Ti va di parlarne?"
-              label="Scrivimi per un bouquet"
+              label="Parliamone"
               big
             />
           </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { withBase } from '../lib/url'
 
 export interface GalleryItem {
   /** Path under /public, e.g. "/gallery/tech-logo-1.jpg". Drop the real file there with this exact name. */
@@ -22,7 +23,7 @@ function GalleryTile({ item, accent, delay }: { item: GalleryItem; accent: strin
     >
       {!failed ? (
         <img
-          src={item.src}
+          src={withBase(item.src)}
           alt={item.alt}
           loading="lazy"
           onError={() => setFailed(true)}

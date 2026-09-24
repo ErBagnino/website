@@ -9,59 +9,156 @@ function phase(t: number, start: number, end: number) {
   return THREE.MathUtils.clamp((t - start) / (end - start), 0, 1)
 }
 
+// A small "living" workstation UI drawn onto a canvas texture: a status header, a
+// scrolling waveform, a mini neural-node diagram and a couple of terminal lines with
+// a blinking cursor. Replaces the old plain-color wipe/rectangle boot effect with
+// something that actually reads as a real screen once it's on.
+function useDashboardTexture() {
+  const state = useRef<{
+    canvas: HTMLCanvasElement
+    ctx: CanvasRenderingContext2D
+    texture: THREE.CanvasTexture
+    wave: number[]
+    nodes: { x: number; y: number }[]
+    scrollLines: string[]
+  } | null>(null)
+
+  if (!state.current) {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 300
+    const ctx = canvas.getContext('2d')!
+    const texture = new THREE.CanvasTexture(canvas)
+    const wave = Array.from({ length: 48 }, () => 0.5)
+    const nodes = Array.from({ length: 9 }, () => ({ x: Math.random(), y: Math.random() }))
+    const scrollLines = [
+      '> boot sequence ok',
+      '> loading render pipeline',
+      '> AI_CORE handshake ok',
+      '> optimizing assets',
+      '> cache warm',
+    ]
+    state.current = { canvas, ctx, texture, wave, nodes, scrollLines }
+  }
+  return state.current
+}
+
+function drawDashboard(
+  d: ReturnType<typeof useDashboardTexture>,
+  t: number,
+  reveal: number,
+  cursorOn: boolean,
+) {
+  const { ctx, canvas, wave, nodes, scrollLines } = d
+  const w = canvas.width
+  const h = canvas.height
+
+  ctx.clearRect(0, 0, w, h)
+  ctx.fillStyle = '#031014'
+  ctx.fillRect(0, 0, w, h)
+
+  ctx.strokeStyle = 'rgba(56,240,224,0.08)'
+  ctx.lineWidth = 1
+  for (let x = 0; x < w; x += 32) {
+    ctx.beginPath()
+    ctx.moveTo(x, 0)
+    ctx.lineTo(x, h)
+    ctx.stroke()
+  }
+
+  ctx.globalAlpha = reveal
+  ctx.fillStyle = '#38f0e0'
+  ctx.font = '700 20px "Space Grotesk", monospace'
+  ctx.fillText('SYSTEM ONLINE', 20, 34)
+  ctx.font = '400 12px monospace'
+  ctx.fillStyle = 'rgba(56,240,224,0.6)'
+  ctx.fillText('AI_CORE · ACTIVE', 20, 54)
+
+  ctx.fillStyle = '#5cf27a'
+  ctx.beginPath()
+  ctx.arc(w - 24, 26, 6, 0, Math.PI * 2)
+  ctx.fill()
+
+  // scrolling waveform
+  wave.shift()
+  wave.push(0.5 + Math.sin(t * 2.4) * 0.3 + (Math.random() - 0.5) * 0.15)
+  ctx.strokeStyle = '#38f0e0'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  wave.forEach((v, i) => {
+    const x = 20 + (i / (wave.length - 1)) * (w - 40)
+    const y = 100 + v * 40
+    if (i === 0) ctx.moveTo(x, y)
+    else ctx.lineTo(x, y)
+  })
+  ctx.stroke()
+
+  // mini neural-node diagram
+  ctx.strokeStyle = 'rgba(56,240,224,0.35)'
+  ctx.lineWidth = 1
+  nodes.forEach((n, i) => {
+    const nx = 40 + n.x * (w * 0.4)
+    const ny = 175 + n.y * 70
+    nodes.forEach((m, j) => {
+      if (j <= i) return
+      const mx = 40 + m.x * (w * 0.4)
+      const my = 175 + m.y * 70
+      if (Math.hypot(nx - mx, ny - my) < 90) {
+        ctx.beginPath()
+        ctx.moveTo(nx, ny)
+        ctx.lineTo(mx, my)
+        ctx.stroke()
+      }
+    })
+  })
+  nodes.forEach((n) => {
+    const nx = 40 + n.x * (w * 0.4)
+    const ny = 175 + n.y * 70
+    ctx.fillStyle = '#8ef5e8'
+    ctx.beginPath()
+    ctx.arc(nx, ny, 2.5, 0, Math.PI * 2)
+    ctx.fill()
+  })
+
+  // terminal lines
+  ctx.font = '400 11px monospace'
+  const idx = Math.floor(t * 0.6) % scrollLines.length
+  for (let i = 0; i < 4; i++) {
+    const line = scrollLines[(idx + i) % scrollLines.length]
+    ctx.fillStyle = i === 3 ? '#38f0e0' : 'rgba(56,240,224,0.45)'
+    ctx.fillText(line, w * 0.46, 190 + i * 18)
+  }
+  if (cursorOn) {
+    ctx.fillStyle = '#38f0e0'
+    ctx.fillRect(w * 0.46, 190 + 3 * 18 - 10, 7, 12)
+  }
+  ctx.globalAlpha = 1
+}
+
 function Screen({ settled }: { settled: boolean }) {
   const glowMat = useRef<THREE.MeshStandardMaterial>(null)
-  const wipe = useRef<THREE.Mesh>(null)
-  const wipeMat = useRef<THREE.MeshBasicMaterial>(null)
-  const scan = useRef<THREE.Mesh>(null)
-  const dashGroup = useRef<THREE.Group>(null)
+  const dash = useDashboardTexture()
+  const uiMat = useRef<THREE.MeshBasicMaterial>(null)
+  const lastDraw = useRef(0)
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
-    const wipeP = phase(t, 0.35, 1.5)
-    if (wipe.current) {
-      wipe.current.scale.x = Math.max(0.001, wipeP)
-      wipe.current.position.x = -1.6 + wipeP * 1.6
-    }
-    if (wipeMat.current) wipeMat.current.opacity = wipeP < 1 ? 0.9 : 0
 
     if (glowMat.current) {
       const base = phase(t, 0.35, 1.6)
       const flicker = !settled && t < 1.9 ? (Math.sin(t * 30) > 0.85 ? 0.5 : 1) : 1
-      glowMat.current.emissiveIntensity = base * 1.5 * flicker
+      glowMat.current.emissiveIntensity = base * 1.3 * flicker
     }
 
-    if (scan.current) {
-      if (settled) {
-        scan.current.visible = false
-      } else {
-        scan.current.visible = t > 1.5
-        scan.current.position.y = 0.15 + (((t - 1.5) * 0.7) % 1.9) - 0.95
-      }
-    }
+    const reveal = phase(t, 1.4, 2.4)
+    if (uiMat.current) uiMat.current.opacity = reveal
 
-    if (dashGroup.current) {
-      const dashP = phase(t, 2.0, 2.8)
-      dashGroup.current.visible = dashP > 0
-      dashGroup.current.scale.setScalar(THREE.MathUtils.lerp(0.9, 1, dashP))
-      dashGroup.current.children.forEach((c, i) => {
-        const mesh = c as THREE.Mesh
-        const mat = mesh.material as THREE.MeshStandardMaterial
-        if (mat) mat.opacity = THREE.MathUtils.clamp(dashP * 2 - i * 0.15, 0, 0.85)
-      })
+    if (reveal > 0 && t - lastDraw.current > 0.12) {
+      lastDraw.current = t
+      drawDashboard(dash, t, reveal, Math.sin(t * 3) > 0)
+      dash.texture.needsUpdate = true
     }
   })
-
-  const panels = useMemo(
-    () => [
-      { pos: [-0.95, 0.55, 0.075] as [number, number, number], size: [1.15, 0.32] as [number, number] },
-      { pos: [0.35, 0.55, 0.075] as [number, number, number], size: [1.35, 0.32] as [number, number] },
-      { pos: [-0.6, 0.05, 0.075] as [number, number, number], size: [1.85, 0.22] as [number, number] },
-      { pos: [-0.9, -0.35, 0.075] as [number, number, number], size: [1.25, 0.55] as [number, number] },
-      { pos: [0.55, -0.35, 0.075] as [number, number, number], size: [1.2, 0.55] as [number, number] },
-    ],
-    [],
-  )
 
   return (
     <group>
@@ -69,22 +166,10 @@ function Screen({ settled }: { settled: boolean }) {
         <planeGeometry args={[3.2, 1.9]} />
         <meshStandardMaterial ref={glowMat} color="#031014" emissive={ACCENT} emissiveIntensity={0} toneMapped={false} />
       </mesh>
-      <mesh ref={wipe} position={[-1.6, 0.15, 0.065]} scale={[0.001, 1.9, 1]}>
-        <planeGeometry args={[3.2, 1.9]} />
-        <meshBasicMaterial ref={wipeMat} color="#bdfff5" transparent opacity={0} toneMapped={false} />
+      <mesh position={[0, 0.15, 0.075]}>
+        <planeGeometry args={[3.05, 1.78]} />
+        <meshBasicMaterial ref={uiMat} map={dash.texture} transparent opacity={0} toneMapped={false} />
       </mesh>
-      <mesh ref={scan} position={[0, -0.8, 0.078]}>
-        <planeGeometry args={[3.1, 0.04]} />
-        <meshBasicMaterial color="#bdfff5" transparent opacity={0.5} toneMapped={false} />
-      </mesh>
-      <group ref={dashGroup} position={[0, 0.15, 0.078]}>
-        {panels.map((p, i) => (
-          <mesh key={i} position={p.pos}>
-            <planeGeometry args={p.size} />
-            <meshStandardMaterial color={ACCENT} emissive={ACCENT} emissiveIntensity={1.2} transparent opacity={0} toneMapped={false} />
-          </mesh>
-        ))}
-      </group>
     </group>
   )
 }
