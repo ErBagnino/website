@@ -28,49 +28,127 @@ function Tile({
   )
 }
 
+// A geometric "A" mark built from a triangle with a negative-space wedge cut
+// out of it and an off-center crossbar — shown at two sizes and on both a
+// light and dark ground, the way a real brand sheet demonstrates a mark
+// holds up at different scales, rather than a single static glyph.
+function Mark({ size = 44, inverted = false }: { size?: number; inverted?: boolean }) {
+  const fg = inverted ? '#0a0f18' : ACCENT
+  const bg = inverted ? ACCENT : '#0a0f18'
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+      <path d="M24 6 L44 42 H4 Z" fill={fg} />
+      <path d="M24 18 L34 36 H14 Z" fill={bg} />
+      <rect x="15" y="27" width="22" height="3" fill={fg} />
+    </svg>
+  )
+}
+
 function LogoMockup() {
   return (
-    <div className="flex flex-col items-center gap-3">
-      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-        <circle cx="32" cy="32" r="31" stroke={ACCENT} strokeWidth="1.5" opacity="0.4" />
-        <path d="M32 12 L48 44 H16 Z" stroke={ACCENT} strokeWidth="2" fill="none" />
-        <path d="M32 24 L40 44 H24 Z" fill={ACCENT} opacity="0.85" />
-      </svg>
-      <p className="font-display text-sm uppercase tracking-[0.35em] text-white/80">Aurelia</p>
-      <div className="flex gap-1.5">
-        {['#38f0e0', '#8ef5e8', '#0a0f18', '#e8fbf6'].map((c) => (
-          <span key={c} className="h-3 w-3 rounded-full border border-white/20" style={{ background: c }} />
-        ))}
+    <div className="grid h-full w-full grid-cols-2 gap-2">
+      <div className="col-span-2 flex flex-col items-center justify-center gap-2 rounded-lg bg-[#0a0f18] py-3">
+        <Mark size={40} />
+        <p className="font-display text-sm uppercase tracking-[0.4em] text-white/85">Aurelia</p>
+        <p className="text-[8px] uppercase tracking-[0.25em] text-white/35">Studio di interni</p>
       </div>
+      <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg py-2" style={{ background: ACCENT }}>
+        <Mark size={22} inverted />
+        <span className="text-[7px] uppercase tracking-widest text-void/60">Su chiaro</span>
+      </div>
+      <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-black/30 py-2">
+        <Mark size={22} />
+        <span className="text-[7px] uppercase tracking-widest text-white/35">Favicon</span>
+      </div>
+    </div>
+  )
+}
+
+function PostQuote() {
+  return (
+    <div className="flex h-full flex-col justify-between rounded-md p-2" style={{ background: 'linear-gradient(155deg, #0d3b3a, #0a0f18)' }}>
+      <span className="text-[16px] leading-none" style={{ color: ACCENT }}>
+        “
+      </span>
+      <p className="font-display text-[8px] font-bold uppercase leading-tight text-white">
+        Meno cose,
+        <br />
+        scelte meglio.
+      </p>
+    </div>
+  )
+}
+
+function PostPattern() {
+  return (
+    <svg viewBox="0 0 100 100" className="h-full w-full rounded-md">
+      <rect width="100" height="100" fill="#0a0f18" />
+      <circle cx="30" cy="35" r="22" fill="none" stroke={ACCENT} strokeWidth="1.4" opacity="0.7" />
+      <circle cx="68" cy="66" r="14" fill={ACCENT} opacity="0.85" />
+      <line x1="10" y1="80" x2="90" y2="20" stroke="#ff7ab8" strokeWidth="1.2" opacity="0.5" />
+    </svg>
+  )
+}
+
+function PostAnnounce() {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-1 rounded-md border border-white/10 bg-[#0a0f18] p-2 text-center">
+      <span className="font-display text-[7px] uppercase tracking-[0.3em]" style={{ color: ACCENT }}>
+        Novità
+      </span>
+      <p className="font-display text-[9px] font-bold uppercase leading-tight text-white">
+        Collezione
+        <br />
+        Autunno
+      </p>
     </div>
   )
 }
 
 function SocialMockup() {
   return (
-    <div className="w-full max-w-[220px] overflow-hidden rounded-xl border border-white/10 bg-[#0a0f18]">
+    <div className="w-full max-w-[230px] overflow-hidden rounded-xl border border-white/10 bg-[#0a0f18]">
       <div className="flex items-center gap-2 px-3 py-2">
-        <span className="h-5 w-5 rounded-full" style={{ background: ACCENT }} />
+        <Mark size={16} />
         <span className="text-[10px] text-white/70">studio.aurelia</span>
         <span className="ml-auto text-white/30">•••</span>
       </div>
-      <div
-        className="flex h-24 items-end p-3"
-        style={{ background: 'linear-gradient(135deg, #0d3b3a, #38f0e0 120%)' }}
-      >
-        <p className="font-display text-sm font-bold uppercase leading-tight text-void">
-          Nuova
-          <br />
-          Collezione
-        </p>
+      <div className="grid grid-cols-3 gap-[2px] p-[2px]">
+        <PostQuote />
+        <PostPattern />
+        <PostAnnounce />
       </div>
       <div className="flex items-center gap-3 px-3 py-2 text-white/50">
-        <span>♡</span>
-        <span>💬</span>
-        <span>↗</span>
-        <span className="ml-auto text-[9px]">124</span>
+        <span>♡ 124</span>
+        <span>💬 18</span>
+        <span className="ml-auto text-[9px] text-white/30">griglia coerente, tono riconoscibile</span>
       </div>
     </div>
+  )
+}
+
+function CupIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z" />
+      <path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17" />
+      <path d="M8 4c0 1-1 1-1 2M12 4c0 1-1 1-1 2" strokeLinecap="round" />
+    </svg>
+  )
+}
+function LeafIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M5 19c8 0 14-6 14-14-8 0-14 6-14 14Z" />
+      <path d="M5 19c2-4 5-7 9-9" />
+    </svg>
+  )
+}
+function CroissantIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M3 15c2-7 8-10 18-9-3 2-3 4-1 5-2 0-3 1-2 3-2-1-3 0-3 2-3-1-4 0-5 2-1-2-3-2-5-1-2-1-2-1-2-2Z" />
+    </svg>
   )
 }
 
@@ -85,9 +163,9 @@ function WebMockup() {
           auroracaffe.it
         </span>
       </div>
-      <div className="flex items-center justify-between px-3 py-2">
-        <span className="font-display text-[9px] uppercase tracking-widest text-white/70">Aurora</span>
-        <div className="flex gap-2 text-[7px] text-white/35">
+      <div className="flex items-center justify-between border-b border-white/5 px-3 py-2">
+        <span className="font-display text-[9px] uppercase tracking-widest text-white/70">Aurora · dal 2019</span>
+        <div className="flex gap-2 text-[7px] uppercase tracking-wide text-white/35">
           <span>Menu</span>
           <span>Storia</span>
           <span>Contatti</span>
@@ -99,6 +177,10 @@ function WebMockup() {
           <br />
           fatto bene.
         </p>
+        <div className="mt-1.5 flex items-center gap-1 text-[7px] text-white/40">
+          <span style={{ color: ACCENT }}>★★★★★</span>
+          <span>4.9 · 210 recensioni</span>
+        </div>
         <span
           className="mt-2 inline-block rounded-full px-2.5 py-1 text-[7px] uppercase tracking-wider text-void"
           style={{ background: ACCENT }}
@@ -106,31 +188,43 @@ function WebMockup() {
           Scopri il menu
         </span>
       </div>
-      <div className="grid grid-cols-3 gap-1.5 px-3 pb-3">
-        {['☕', '🌿', '🥐'].map((e, i) => (
-          <div key={i} className="rounded border border-white/10 bg-black/30 p-1.5 text-center text-[10px]">
-            {e}
-          </div>
-        ))}
+      <div className="grid grid-cols-3 gap-1.5 px-3 pb-3 text-accent">
+        <div className="flex items-center justify-center rounded border border-white/10 bg-black/30 py-2">
+          <CupIcon />
+        </div>
+        <div className="flex items-center justify-center rounded border border-white/10 bg-black/30 py-2">
+          <LeafIcon />
+        </div>
+        <div className="flex items-center justify-center rounded border border-white/10 bg-black/30 py-2">
+          <CroissantIcon />
+        </div>
       </div>
     </div>
   )
 }
 
+// A generative flow-field poster, presented like a framed print with a
+// gallery placard — concrete and titled, rather than an unstructured blur.
 function AiMockup() {
+  const arcs = [
+    { d: 'M8 70 C 30 20, 70 20, 92 70', color: ACCENT },
+    { d: 'M4 50 C 30 90, 70 10, 96 50', color: '#ff7ab8' },
+    { d: 'M14 85 C 40 45, 60 45, 86 85', color: '#ffb454' },
+    { d: 'M10 30 C 35 60, 65 60, 90 30', color: '#c792ea' },
+  ]
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-lg">
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(circle at 30% 30%, rgba(56,240,224,0.5), transparent 55%), radial-gradient(circle at 70% 60%, rgba(255,122,184,0.35), transparent 55%), radial-gradient(circle at 50% 90%, rgba(255,180,84,0.3), transparent 60%), #050a10',
-        }}
-      />
-      <div className="float absolute left-[20%] top-[25%] h-10 w-10 rounded-full bg-white/10 blur-xl" />
-      <div className="float absolute right-[22%] top-[45%] h-14 w-14 rounded-full bg-white/10 blur-xl" style={{ animationDelay: '1.4s' }} />
-      <div className="absolute bottom-3 left-3 right-3 rounded-md bg-black/40 px-2 py-1 backdrop-blur-sm">
-        <p className="text-[9px] uppercase tracking-widest text-white/60">Generato con AI · prompt-assisted</p>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#0a0f18] p-3">
+      <div className="relative aspect-square w-[74%] overflow-hidden rounded-sm border border-white/10 bg-[#050a10]">
+        <svg viewBox="0 0 100 100" className="h-full w-full">
+          {arcs.map((a, i) => (
+            <path key={i} d={a.d} fill="none" stroke={a.color} strokeWidth="0.9" opacity={0.75 - i * 0.1} />
+          ))}
+          <circle cx="50" cy="52" r="3.4" fill={ACCENT} />
+        </svg>
+      </div>
+      <div className="flex w-[74%] items-center justify-between text-[7px] uppercase tracking-widest text-white/40">
+        <span>Studio → generativo</span>
+        <span>Prompt-assisted</span>
       </div>
     </div>
   )

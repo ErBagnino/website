@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { getCountries } from '../../lib/countries'
+import Flag from './Flag'
 
 const ACCENT = '#ffb454'
 
@@ -158,7 +159,7 @@ export function CountryPicker({
                 }}
                 className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-white/80 hover:bg-white/5"
               >
-                <span className="text-lg">{c.flag}</span>
+                <Flag code={c.code} size={18} />
                 {c.name}
               </button>
             ))}
@@ -211,12 +212,12 @@ export function IllustratedCard({
       onClick={onClick}
       aria-pressed={active}
       style={active ? { borderColor: ACCENT, background: 'rgba(255,180,84,0.12)' } : undefined}
-      className="flex flex-col items-start gap-3 rounded-2xl border border-white/10 p-5 text-left transition hover:border-travel hover:-translate-y-0.5"
+      className="flex w-full flex-col items-start gap-3 rounded-2xl border border-white/10 p-5 text-left transition hover:border-travel hover:-translate-y-0.5"
     >
       <span style={{ color: active ? ACCENT : '#e7cf9a' }}>{icon}</span>
-      <div>
-        <p className="font-display text-sm uppercase tracking-wide text-white">{label}</p>
-        {desc && <p className="mt-1 text-xs text-white/45">{desc}</p>}
+      <div className="w-full">
+        <p className="font-display text-sm uppercase leading-snug tracking-wide text-white [overflow-wrap:break-word]">{label}</p>
+        {desc && <p className="mt-1 text-xs leading-relaxed text-white/45 [overflow-wrap:break-word]">{desc}</p>}
       </div>
     </button>
   )

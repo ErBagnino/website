@@ -6,7 +6,6 @@ import Scene3D from '../components/Scene3D'
 import AvatarScene, { type AvatarSceneHandle } from '../three/AvatarScene'
 import WhatsAppButton from '../components/WhatsAppButton'
 import { useDocumentMeta } from '../lib/seo'
-import { withBase } from '../lib/url'
 
 const ACCENT = '#cfe3e8'
 
@@ -15,6 +14,13 @@ const HUD_MESSAGES = [
   'Vuoi sapere cosa ho combinato finora?',
   'Sono anche bagnino di salvataggio, giuro.',
   'Scorri per il percorso completo.',
+]
+
+const SCAN_STATS = [
+  { label: 'Altezza', value: '~170 cm' },
+  { label: 'Peso', value: '~74 kg' },
+  { label: 'Capelli', value: 'Biondi' },
+  { label: 'Occhi', value: 'Verdi' },
 ]
 
 const EXPERIENCES = [
@@ -99,12 +105,35 @@ function HudMessage() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 8 }}
       transition={{ duration: 0.4 }}
-      className="pointer-events-none absolute bottom-6 left-1/2 z-20 w-[min(88%,320px)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-center backdrop-blur-md"
+      className="pointer-events-none absolute bottom-20 left-1/2 z-20 w-[min(88%,320px)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-center backdrop-blur-md"
     >
       <p className="font-display text-[9px] uppercase tracking-[0.3em]" style={{ color: ACCENT }}>
         [ Adam_AI ]
       </p>
       <p className="mt-1 text-xs text-white/70">{HUD_MESSAGES[index]}</p>
+    </motion.div>
+  )
+}
+
+function ScanStats() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 1.4 }}
+      className="pointer-events-none absolute right-4 top-4 z-20 rounded-xl border border-white/10 bg-black/45 px-4 py-3 backdrop-blur-md"
+    >
+      <p className="font-display text-[9px] uppercase tracking-[0.3em]" style={{ color: ACCENT }}>
+        Scan · identikit
+      </p>
+      <div className="mt-2 space-y-1">
+        {SCAN_STATS.map((s) => (
+          <div key={s.label} className="flex items-center justify-between gap-4 text-[11px]">
+            <span className="text-white/45">{s.label}</span>
+            <span className="text-white/80">{s.value}</span>
+          </div>
+        ))}
+      </div>
     </motion.div>
   )
 }
@@ -173,27 +202,23 @@ export default function Profile() {
             <span>📍 Rosolina (RO)</span>
             <span>🚗 Automunito · Patente B</span>
             <span>✅ Disponibilità immediata</span>
+            <a href="mailto:adamjavurek1@gmail.com" className="transition hover:text-white/80">
+              ✉ adamjavurek1@gmail.com
+            </a>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mt-8 flex flex-wrap gap-4"
+            className="mt-8 flex flex-wrap items-center gap-4"
           >
-            <a
-              href={withBase('/cv/adam-javurek-cv.pdf')}
-              download
-              style={{ color: ACCENT, borderColor: 'rgba(207,227,232,0.4)' }}
-              className="panel-glass inline-flex items-center gap-2 rounded-full border px-6 py-3 font-display text-sm uppercase tracking-wider transition hover:scale-[1.03] active:scale-[0.98]"
-            >
-              ⭳ Download CV
-            </a>
             <WhatsAppButton
               accent={ACCENT}
               message="Ciao Adam! Ho visto il tuo profilo/CV sul portfolio e vorrei parlarne."
               label="Contattami"
             />
+            <span className="text-xs text-white/35">Tutto il mio CV è qui sotto — niente da scaricare.</span>
           </motion.div>
         </div>
 
@@ -204,6 +229,7 @@ export default function Profile() {
           >
             <AvatarScene ref={avatarRef} />
           </Scene3D>
+          <ScanStats />
           <HudMessage />
           <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-3">
             <button

@@ -66,33 +66,43 @@ function VolleyballPlayer({ x, delay = 0, flip = false }: { x: string; delay?: n
 
 function VolleyballCourt() {
   return (
-    <div className="absolute bottom-[6%] left-[38%] h-[16%] w-[24%] min-w-[190px]">
+    <div className="absolute bottom-[4%] left-[24%] h-[12%] w-[15%] min-w-[150px]">
       <svg viewBox="0 0 200 90" className="h-full w-full overflow-visible" preserveAspectRatio="none">
-        <rect x="6" y="10" width="188" height="70" rx="3" stroke="#fff" strokeOpacity="0.4" strokeWidth="1.6" fill="#e0c07f" fillOpacity="0.18" />
-        <line x1="100" y1="0" x2="100" y2="90" stroke="#fff" strokeOpacity="0.5" strokeWidth="1.4" strokeDasharray="3 3" />
-        <line x1="100" y1="4" x2="100" y2="44" stroke="#cbb27a" strokeWidth="3" />
+        <polygon
+          points="20,84 180,84 158,10 42,10"
+          stroke="#fff"
+          strokeOpacity="0.4"
+          strokeWidth="1.6"
+          fill="#e0c07f"
+          fillOpacity="0.18"
+        />
+        <line x1="100" y1="10" x2="100" y2="84" stroke="#fff" strokeOpacity="0.5" strokeWidth="1.4" strokeDasharray="3 3" />
+        <line x1="100" y1="10" x2="100" y2="46" stroke="#cbb27a" strokeWidth="3" />
         {Array.from({ length: 7 }).map((_, i) => (
-          <line key={i} x1={100} y1={4 + i * 5.5} x2={94} y2={4 + i * 5.5} stroke="#cbb27a" strokeWidth="1" opacity={0.7} />
+          <line key={i} x1={100} y1={10 + i * 5} x2={94} y2={10 + i * 5} stroke="#cbb27a" strokeWidth="1" opacity={0.7} />
         ))}
       </svg>
-      <VolleyballPlayer x="14%" delay={0} />
-      <VolleyballPlayer x="30%" delay={0.9} flip />
-      <VolleyballPlayer x="66%" delay={0.4} />
-      <VolleyballPlayer x="82%" delay={1.3} flip />
+      <VolleyballPlayer x="18%" delay={0} />
+      <VolleyballPlayer x="34%" delay={0.9} flip />
+      <VolleyballPlayer x="62%" delay={0.4} />
+      <VolleyballPlayer x="78%" delay={1.3} flip />
     </div>
   )
 }
 
 function Ship() {
   return (
-    <div className="ship-drift absolute top-[30%] left-0 opacity-70">
-      <svg width="54" height="20" viewBox="0 0 54 20" fill="none">
-        <path d="M4 12 L50 12 L44 18 L10 18 Z" fill="#0b2a30" />
-        <rect x="14" y="4" width="3" height="8" fill="#0b2a30" />
-        <rect x="22" y="2" width="3" height="10" fill="#0b2a30" />
-        <rect x="30" y="5" width="3" height="7" fill="#0b2a30" />
-        <line x1="4" y1="12" x2="50" y2="12" stroke="#12383f" strokeWidth="1.4" />
-      </svg>
+    <div className="ship-drift absolute top-[38%] opacity-85">
+      <div className="ship-bob">
+        <svg width="58" height="22" viewBox="0 0 58 22" fill="none">
+          <path d="M5 13 L53 13 L47 19 L11 19 Z" fill="#0b2a30" />
+          <rect x="15" y="4" width="3" height="9" fill="#0b2a30" />
+          <rect x="24" y="2" width="3" height="11" fill="#0b2a30" />
+          <rect x="33" y="5" width="3" height="8" fill="#0b2a30" />
+          <line x1="5" y1="13" x2="53" y2="13" stroke="#12383f" strokeWidth="1.4" />
+          <ellipse cx="29" cy="20.5" rx="16" ry="1.6" fill="#0e5a63" opacity="0.5" />
+        </svg>
+      </div>
     </div>
   )
 }
@@ -107,8 +117,6 @@ export default function BeachTransition() {
             'linear-gradient(180deg, #7a5230 0%, #d9a65c 12%, #ffd77a 22%, #4fb3a8 42%, #1c7b83 68%, #0c4a55 100%)',
         }}
       />
-
-      <Ship />
 
       <svg
         className="wave-scroll absolute left-0 top-[26%] h-[70%] w-[200%] opacity-70"
@@ -130,6 +138,8 @@ export default function BeachTransition() {
           fill="#0a4750"
         />
       </svg>
+
+      <Ship />
 
       <svg
         className="absolute bottom-0 left-0 h-[26%] w-full"

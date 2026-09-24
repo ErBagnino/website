@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import ParticleField from './ParticleField'
+import { jitter } from '../lib/noise'
 
 // A much wider, more varied palette than a typical bouquet needs — flowers
 // arrive one at a time, cycling through colors in a decorrelated order, so
@@ -16,11 +17,6 @@ const GOLDEN_ANGLE = 2.399963987
 
 function ease(x: number) {
   return 1 - Math.pow(1 - x, 3)
-}
-
-function jitter(seed: number, amount: number) {
-  const n = Math.sin(seed * 12.9898) * 43758.5453
-  return (n - Math.floor(n) - 0.5) * 2 * amount
 }
 
 function Stem({ curve, delay }: { curve: THREE.CatmullRomCurve3; delay: number }) {
@@ -39,14 +35,15 @@ function Stem({ curve, delay }: { curve: THREE.CatmullRomCurve3; delay: number }
   )
 }
 
-// A pipe-cleaner "petal" is modelled as a fat, pinched loop of chenille —
-// not a smooth sphere — which is what actually reads as fuzzy wire-and-fibre
-// craftwork instead of plastic or glass.
-function PetalLoop({ angle, color, delay, seed }: { angle: number; color: string; delay: number; seed: number }) {
+// A pipe-cleaner "petal" is a fat, flattened, rounded-tip blade radiating
+// from the flower's center — not a full/partial ring, which reads as a loop
+// or half-circle rather than an actual petal.
+function Petal({ angle, color, delay, seed }: { angle: number; color: string; delay: number; seed: number }) {
   const ref = useRef<THREE.Group>(null)
-  const tilt = 0.55 + jitter(seed, 0.18)
-  const scaleVariance = 1 + jitter(seed + 5, 0.16)
-  const radius = 0.14 + jitter(seed + 9, 0.02)
+  const splay = 0.62 + jitter(seed, 0.16)
+  const twist = jitter(seed + 2, 0.22)
+  const scaleVariance = 1 + jitter(seed + 5, 0.14)
+  const length = 0.16 + jitter(seed + 9, 0.015)
 
   useFrame((state) => {
     if (ref.current) {
@@ -57,14 +54,9 @@ function PetalLoop({ angle, color, delay, seed }: { angle: number; color: string
   })
 
   return (
-    <group
-      ref={ref}
-      position={[Math.cos(angle) * radius, Math.sin(angle) * radius * 0.5, Math.sin(angle) * radius]}
-      rotation={[tilt, angle + jitter(seed + 2, 0.3), jitter(seed + 3, 0.4)]}
-      scale={0}
-    >
-      <mesh>
-        <torusGeometry args={[0.075, 0.028, 6, 10, Math.PI * 1.5]} />
+    <group ref={ref} rotation={[-splay, angle, twist]} scale={0}>
+      <mesh position={[length * 0.55, 0, 0]} scale={[2.6, 0.95, 0.42]}>
+        <sphereGeometry args={[length * 0.34, 8, 6]} />
         <meshStandardMaterial color={color} roughness={1} metalness={0} />
       </mesh>
     </group>
@@ -90,7 +82,7 @@ function Flower({ position, color, delay, seed }: { position: THREE.Vector3; col
   return (
     <group ref={group} position={position} rotation={[jitter(seed + 1, 0.4), 0, jitter(seed + 4, 0.3)]}>
       {Array.from({ length: petals }).map((_, i) => (
-        <PetalLoop
+        <Petal
           key={i}
           angle={(i / petals) * Math.PI * 2 + jitter(seed + i, 0.25)}
           color={color}

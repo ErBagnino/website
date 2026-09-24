@@ -37,6 +37,7 @@ body {
   .wave-scroll,
   .wave-scroll-slow,
   .ship-drift,
+  .ship-bob,
   .player-bob,
   .stroll,
   .twinkle,
@@ -174,12 +175,19 @@ body {
 }
 
 @keyframes ship-drift {
-  0% { transform: translateX(-14%) translateY(0px); }
-  50% { transform: translateX(58%) translateY(-2.5px); }
-  100% { transform: translateX(128%) translateY(0px); }
+  0% { left: -8%; }
+  100% { left: 104%; }
 }
 .ship-drift {
-  animation: ship-drift 52s linear infinite;
+  animation: ship-drift 15s linear infinite;
+}
+
+@keyframes ship-bob {
+  0%, 100% { transform: translateY(0px) rotate(-1.2deg); }
+  50% { transform: translateY(-5px) rotate(1.2deg); }
+}
+.ship-bob {
+  animation: ship-bob 2.1s ease-in-out infinite;
 }
 
 @keyframes player-bob {

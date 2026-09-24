@@ -3,14 +3,15 @@ import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 
 const ACCENT = '#8fe0e8'
-const HAIR = '#d9bc7e'
-const EYE = '#5fe38a'
+const HAIR_TONES = ['#f2dda0', '#e0bd74', '#eccf8c']
+const EYE = '#4fdc82'
+const HEAD_RADIUS = 0.44
 
 // The avatar is presented as a holographic scan of Adam rather than an attempt at
 // photoreal likeness: a faceted (literally diamond-cut) head and chest lit from
 // within plus an additive rim edge — the same emissive-glow language as the rest
-// of the site's HUD — with only hair and eyes rendered fully opaque so they read
-// as the one "alive" accent against the scanned shell.
+// of the site's HUD — with hair, eyes, brows and mouth rendered fully opaque so
+// they read as the "real" parts of him against the scanned, translucent shell.
 function HologramShell({ children }: { children: ReactNode }) {
   return <group>{children}</group>
 }
@@ -39,41 +40,98 @@ function RimMesh({ geometry, scale = 1.06, opacity = 0.55 }: { geometry: ReactNo
   )
 }
 
+// Hair is a solid short-cropped "cap" (a partial sphere covering crown,
+// temples and back, with a forehead fringe) rendered with an UNLIT flat
+// color — it deliberately ignores the cyan/green hologram lighting so it
+// reads as true blonde instead of picking up a khaki tint — plus a handful
+// of flattened, swept "bangs" at the front for a bit of styled character.
+// An earlier version scattered many thin cones over the whole scalp for
+// texture; at any density that read as spikes/a sea urchin rather than
+// hair, so the fix is one clean solid volume instead of more geometry.
+function HairCap() {
+  return (
+    <mesh position={[0, 0.05, -0.01]} rotation={[0.04, 0, 0]}>
+      <sphereGeometry args={[HEAD_RADIUS * 1.015, 24, 16, 0, Math.PI * 2, 0, Math.PI * 0.64]} />
+      <meshBasicMaterial color={HAIR_TONES[1]} toneMapped={false} />
+    </mesh>
+  )
+}
+
+function FringeSwoop() {
+  const strands = [
+    { x: -0.24, y: 0.14, z: 0.24, rz: 0.55, len: 0.16, tone: 0 },
+    { x: -0.1, y: 0.19, z: 0.3, rz: 0.3, len: 0.17, tone: 2 },
+    { x: 0.08, y: 0.19, z: 0.3, rz: 0.05, len: 0.16, tone: 1 },
+    { x: 0.23, y: 0.13, z: 0.23, rz: -0.4, len: 0.15, tone: 2 },
+  ]
+  return (
+    <>
+      {strands.map((s, i) => (
+        <mesh
+          key={i}
+          position={[s.x, s.y, s.z]}
+          rotation={[0.75, i % 2 === 0 ? 0.15 : -0.15, s.rz]}
+          scale={[s.len, 0.7, 0.32]}
+        >
+          <sphereGeometry args={[0.09, 8, 6]} />
+          <meshBasicMaterial color={HAIR_TONES[s.tone]} toneMapped={false} />
+        </mesh>
+      ))}
+    </>
+  )
+}
+
+function Hair() {
+  return (
+    <>
+      <HairCap />
+      <FringeSwoop />
+    </>
+  )
+}
+
 function Head({ blink }: { blink: number }) {
   return (
-    <group position={[0, 1.32, 0]}>
+    <group position={[0, 1.34, 0]}>
       <pointLight position={[0, 0, 0]} intensity={3} color={ACCENT} distance={1.2} />
 
-      {/* faceted "diamond-cut" head */}
-      <mesh>
-        <icosahedronGeometry args={[0.42, 1]} />
-        <HoloMaterial intensity={0.55} />
-      </mesh>
-      <RimMesh geometry={<icosahedronGeometry args={[0.42, 1]} />} scale={1.1} />
-
-      {/* hair: a tousled forward tuft, ash-blonde, clustered tight over the crown */}
-      <group position={[0.02, 0.32, 0.08]} rotation={[0.15, 0, 0]}>
-        {[
-          [-0.1, 0, 0.05, 0.75, 0.85],
-          [-0.02, 0.02, 0.09, 0.85, 1],
-          [0.08, 0, 0.07, 0.8, 0.9],
-          [0.15, -0.03, 0, 0.65, 0.7],
-          [-0.16, -0.03, -0.02, 0.6, 0.65],
-        ].map(([x, y, z, s, h], i) => (
-          <mesh key={i} position={[x, y, z]} rotation={[0.55 + i * 0.05, (i - 2) * 0.18, (i - 2) * 0.12]} scale={[s, h, s]}>
-            <coneGeometry args={[0.09, 0.2, 6]} />
-            <meshStandardMaterial color={HAIR} roughness={0.65} />
-          </mesh>
-        ))}
+      {/* faceted "diamond-cut" head — slightly egg-shaped rather than a perfect sphere */}
+      <group scale={[1, 1.12, 0.94]}>
+        <mesh>
+          <icosahedronGeometry args={[HEAD_RADIUS, 1]} />
+          <HoloMaterial intensity={0.55} />
+        </mesh>
+        <RimMesh geometry={<icosahedronGeometry args={[HEAD_RADIUS, 1]} />} scale={1.08} />
+        <Hair />
       </group>
+
+      {/* brows */}
+      {[-0.15, 0.15].map((x, i) => (
+        <mesh key={i} position={[x, 0.1, 0.385]} rotation={[0, 0, i === 0 ? 0.12 : -0.12]}>
+          <boxGeometry args={[0.13, 0.022, 0.02]} />
+          <meshStandardMaterial color="#c99a44" roughness={0.7} />
+        </mesh>
+      ))}
 
       {/* eyes */}
       {[-0.15, 0.15].map((x, i) => (
-        <mesh key={i} position={[x, -0.02, 0.37]} scale={[1, blink, 1]}>
-          <sphereGeometry args={[0.045, 12, 12]} />
-          <meshStandardMaterial color={EYE} emissive={EYE} emissiveIntensity={1.4} toneMapped={false} />
+        <mesh key={i} position={[x, -0.02, 0.4]} scale={[1, blink, 1]}>
+          <sphereGeometry args={[0.048, 12, 12]} />
+          <meshStandardMaterial color={EYE} emissive={EYE} emissiveIntensity={1.3} toneMapped={false} />
         </mesh>
       ))}
+
+      {/* nose */}
+      <mesh position={[0, -0.14, 0.42]} rotation={[Math.PI / 2, 0, 0]}>
+        <coneGeometry args={[0.035, 0.09, 6]} />
+        <HoloMaterial intensity={0.5} />
+      </mesh>
+
+      {/* a small warm smile */}
+      <mesh position={[0, -0.28, 0.38]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.075, 0.012, 6, 12, Math.PI * 0.62]} />
+        <meshStandardMaterial color={ACCENT} emissive={ACCENT} emissiveIntensity={1.8} toneMapped={false} />
+      </mesh>
     </group>
   )
 }
@@ -179,9 +237,10 @@ function AvatarScene({ onInteract }: AvatarSceneProps, ref: React.ForwardedRef<A
 
   return (
     <>
-      <ambientLight intensity={0.35} />
+      <ambientLight intensity={0.4} />
       <pointLight position={[2, 2, 3]} intensity={14} color={ACCENT} />
       <pointLight position={[-2, 0, 2]} intensity={5} color={EYE} />
+      <pointLight position={[0, 2.4, 2]} intensity={4} color="#fff3d6" />
 
       <group ref={rig} position={[0, -0.9, 0]}>
         <HologramShell>
