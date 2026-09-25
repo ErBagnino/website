@@ -19,6 +19,16 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
   const countries = getCountries()
   const nameOf = (code: string) => countries.find((c) => c.code === code)?.name ?? code
 
+  // `view.x` / `view.y` are stored in WORLD space, as an offset (from the map's
+  // center) of the point currently shown at the viewport's center — NOT as the
+  // raw CSS translate. This is what makes pan and zoom compose correctly: the
+  // actual translate is derived below as `-x*scale` / `-y*scale`. An earlier
+  // version stored the raw (screen-space) translate directly, which happened to
+  // match this world-space offset only at scale 1 — at any other zoom, wrapping
+  // that translate by a flat map-width produced a jump of `(scale-1)*mapWidth`
+  // (the copies are `scale`-widths apart on screen, not 1 map-width apart), and
+  // the same scale/space mismatch made zoom-to-cursor drift after a pan. Doing
+  // all pan/zoom math in world space (scale-independent) fixes both.
   const [view, setView] = useState({ x: 0, y: 0, scale: 1 })
   const containerRef = useRef<HTMLDivElement>(null)
   const dragging = useRef(false)
@@ -30,7 +40,8 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
   // below) and the pan value is folded back into one map-width so a country
   // near the international date line is never "stuck" at the border; you can
   // always keep dragging the same direction to reach it. Vertical panning
-  // stays clamped (there's no pole to wrap around to).
+  // stays clamped (there's no pole to wrap around to). Because `x` is now a
+  // world-space offset, wrapping it by one map-width is seamless at any zoom.
   const wrapX = (x: number) => x - VB_W * Math.round(x / VB_W)
 
   const clamp = (v: { x: number; y: number; scale: number }) => {
@@ -43,13 +54,13 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
     }
   }
 
-  // Convert a pointer's screen position to the map's own user-space
-  // coordinates, given the current pan/zoom of the inner <g>.
+  // Convert a pointer's screen position to the map's own world-space
+  // coordinates, given the current pan/zoom.
   const pointToWorld = (clientX: number, clientY: number, v: { x: number; y: number; scale: number }) => {
     const rect = containerRef.current!.getBoundingClientRect()
     const fx = VB_X + ((clientX - rect.left) / rect.width) * VB_W
     const fy = VB_Y + ((clientY - rect.top) / rect.height) * VB_H
-    return { wx: VB_CX + (fx - VB_CX - v.x) / v.scale, wy: VB_CY + (fy - VB_CY - v.y) / v.scale, fx, fy }
+    return { wx: VB_CX + v.x + (fx - VB_CX) / v.scale, wy: VB_CY + v.y + (fy - VB_CY) / v.scale, fx, fy }
   }
 
   const zoomAt = (clientX: number, clientY: number, factor: number) => {
@@ -57,8 +68,8 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
       const { wx, wy, fx, fy } = pointToWorld(clientX, clientY, v)
       const scale = Math.min(MAX_SCALE, Math.max(1, v.scale * factor))
       // keep the same world point under the cursor after rescaling
-      const x = fx - VB_CX - scale * (wx - VB_CX)
-      const y = fy - VB_CY - scale * (wy - VB_CY)
+      const x = wx - VB_CX - (fx - VB_CX) / scale
+      const y = wy - VB_CY - (fy - VB_CY) / scale
       return clamp({ scale, x, y })
     })
   }
@@ -78,7 +89,7 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
     const rect = containerRef.current!.getBoundingClientRect()
     const px = VB_W / rect.width
     const py = VB_H / rect.height
-    setView((v) => clamp({ ...v, x: v.x + dx * px, y: v.y + dy * py }))
+    setView((v) => clamp({ ...v, x: v.x - (dx * px) / v.scale, y: v.y - (dy * py) / v.scale }))
   }
   const onPointerUp = () => {
     dragging.current = false
@@ -123,7 +134,12 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
             </pattern>
           </defs>
           <rect x={VB_X} y={VB_Y} width={VB_W} height={VB_H} fill="url(#mapGrid)" />
-          <g style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`, transformOrigin: `${VB_CX}px ${VB_CY}px` }}>
+          <g
+            style={{
+              transform: `translate(${-view.x * view.scale}px, ${-view.y * view.scale}px) scale(${view.scale})`,
+              transformOrigin: `${VB_CX}px ${VB_CY}px`,
+            }}
+          >
             {/* three copies side by side so panning wraps around like a 360° panorama instead of stopping at a hard edge */}
             {[-VB_W, 0, VB_W].map((offset) => (
               <g key={offset} transform={`translate(${offset} 0)`}>

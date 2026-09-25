@@ -168,12 +168,15 @@ export default function BeachTransition() {
       <Palm x="95%" scale={0.5} flip opacity={0.5} />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: -12 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="absolute inset-x-0 bottom-6 flex justify-center px-6 text-center"
+        className="pointer-events-none absolute inset-x-0 top-4 flex justify-center px-6 text-center sm:top-6"
       >
-        <p className="font-display text-xs uppercase tracking-[0.3em] text-white/70 sm:text-sm">
+        {/* Sits in the empty sky band (never over the sand illustrations below,
+            which vary in height between mobile and desktop) with its own scrim
+            so it stays legible regardless of what scrolls behind it. */}
+        <p className="rounded-full border border-white/10 bg-black/35 px-4 py-1.5 font-display text-[10px] uppercase tracking-[0.3em] text-white/80 backdrop-blur-sm sm:text-sm">
           dall’aeroporto alla spiaggia, senza lo stress in mezzo
         </p>
       </motion.div>

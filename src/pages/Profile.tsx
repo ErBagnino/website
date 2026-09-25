@@ -83,12 +83,129 @@ const EDUCATION = [
 
 const INTERESTS = ['Puntualità', 'Occhio per il design', 'Attitudine interculturale', 'Home gym & nutrizione']
 
+// Six traits, each mapped to a region of a stylized brain diagram (see BrainMap
+// below) — broader than a plain bullet list, and written so someone skimming
+// without hovering anything still gets the full picture.
 const PERSONALITY = [
-  { title: 'Estroverso', text: 'Parlare con persone nuove non mi pesa — mi viene naturale, anche nei momenti più caotici.' },
-  { title: 'A mio agio con le persone', text: 'Che sia dietro un banco reception o su una spiaggia affollata, riesco a restare tranquillo e presente.' },
-  { title: 'Metto a proprio agio', text: 'Il mio obiettivo, in accoglienza, è sempre far sentire l’altra persona vista e tranquilla, non solo "servita".' },
-  { title: 'Squadra prima di tutto', text: 'Preferisco un buon lavoro di gruppo a un successo individuale — si vede in ogni ruolo che ho fatto finora.' },
+  {
+    angle: -60,
+    color: '#ff7ab8',
+    title: 'Creatività & occhio per il design',
+    text: 'Che sia un sito, un logo o dei fiori fatti a mano, curo i dettagli finché il risultato non mi convince davvero.',
+  },
+  {
+    angle: 0,
+    color: '#b389f5',
+    title: 'Curiosità & problem solving',
+    text: 'Mi piace capire come funzionano le cose — da lì l’interesse, coltivato da autodidatta, per il web design e l’intelligenza artificiale.',
+  },
+  {
+    angle: 60,
+    color: '#8fe0e8',
+    title: 'Squadra & affidabilità',
+    text: 'Preferisco un buon lavoro di gruppo a un successo individuale, e ci tengo a essere puntuale — qualcuno su cui si può contare.',
+  },
+  {
+    angle: 120,
+    color: '#cfe3e8',
+    title: 'Ospitalità & calma sotto pressione',
+    text: 'Il mio obiettivo in accoglienza è far sentire l’ospite visto e tranquillo, non solo "servito" — e restare lucido quando il turno si complica.',
+  },
+  {
+    angle: 180,
+    color: '#4fdc82',
+    title: 'Comunicazione & empatia',
+    text: 'Che sia dietro un banco reception o su una spiaggia affollata, ascolto prima di rispondere e noto in fretta cosa serve all’altra persona.',
+  },
+  {
+    angle: 240,
+    color: '#ffb454',
+    title: 'Estroversione & iniziativa',
+    text: 'Parlare con persone nuove non mi pesa — mi viene naturale, anche nei momenti più caotici, e spesso sono io a rompere il ghiaccio.',
+  },
 ]
+
+const BRAIN_CX = 170
+const BRAIN_CY = 110
+const BRAIN_OUTLINE =
+  'M 60 70 C 55 40, 100 15, 145 20 C 175 5, 225 10, 245 30 C 280 35, 310 65, 300 100 C 320 110, 315 150, 285 165 C 295 190, 255 205, 225 195 C 210 215, 165 215, 150 198 C 120 210, 80 200, 75 175 C 45 175, 30 140, 40 105 C 25 95, 35 75, 60 70 Z'
+
+function polarPoint(radius: number, angleDeg: number) {
+  const rad = (angleDeg * Math.PI) / 180
+  return { x: BRAIN_CX + radius * Math.cos(rad), y: BRAIN_CY + radius * Math.sin(rad) }
+}
+
+// A stylized "neural scan" of the personality traits above: one wedge per
+// trait, clipped to a hand-drawn brain silhouette so the colored regions
+// never spill outside it regardless of wedge geometry, with a leader line and
+// a short label reaching just past the outline — same annotated-scan language
+// as the Scan · identikit panel in the hero.
+function BrainMap() {
+  return (
+    <div className="relative mx-auto mt-8 aspect-[340/240] w-full max-w-xl">
+      <svg aria-hidden viewBox="0 0 340 240" className="h-full w-full overflow-visible">
+        <defs>
+          <clipPath id="brainClip">
+            <path d={BRAIN_OUTLINE} />
+          </clipPath>
+        </defs>
+        <g clipPath="url(#brainClip)">
+          {PERSONALITY.map((p) => {
+            const a0 = polarPoint(200, p.angle - 30)
+            const a1 = polarPoint(200, p.angle + 30)
+            return (
+              <path
+                key={p.title}
+                d={`M ${BRAIN_CX} ${BRAIN_CY} L ${a0.x} ${a0.y} A 200 200 0 0 1 ${a1.x} ${a1.y} Z`}
+                fill={p.color}
+                opacity={0.4}
+              />
+            )
+          })}
+        </g>
+        <path d={BRAIN_OUTLINE} fill="none" stroke="rgba(207,227,232,0.55)" strokeWidth="1.6" />
+        <path
+          d="M 170 20 C 150 55, 190 80, 170 110 C 150 140, 190 165, 175 198"
+          fill="none"
+          stroke="rgba(207,227,232,0.3)"
+          strokeWidth="1.2"
+          strokeDasharray="2 4"
+        />
+        {PERSONALITY.map((p) => {
+          const s0 = polarPoint(95, p.angle)
+          const s1 = polarPoint(118, p.angle)
+          return (
+            <g key={p.title}>
+              <line x1={s0.x} y1={s0.y} x2={s1.x} y2={s1.y} stroke={p.color} strokeWidth="1.2" opacity={0.8} />
+              <circle cx={s0.x} cy={s0.y} r={3} fill={p.color} />
+            </g>
+          )
+        })}
+      </svg>
+      {PERSONALITY.map((p) => {
+        const pt = polarPoint(120, p.angle)
+        const leftPct = (pt.x / 340) * 100
+        const topPct = (pt.y / 240) * 100
+        const onRight = Math.cos((p.angle * Math.PI) / 180) >= 0
+        return (
+          <span
+            key={p.title}
+            className={`absolute max-w-[9.5rem] -translate-y-1/2 font-display text-[9px] uppercase leading-tight tracking-wider sm:max-w-[10.5rem] sm:text-[10px] ${
+              onRight ? 'text-left' : 'text-right'
+            }`}
+            style={{
+              color: p.color,
+              ...(onRight ? { left: `${leftPct}%` } : { right: `${100 - leftPct}%` }),
+              top: `${topPct}%`,
+            }}
+          >
+            {p.title}
+          </span>
+        )
+      })}
+    </div>
+  )
+}
 
 function HudMessage() {
   const [index, setIndex] = useState(0)
@@ -113,16 +230,47 @@ function HudMessage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 8 }}
+      initial={{ opacity: 0, x: '-50%', y: 8 }}
+      animate={{ opacity: visible ? 1 : 0, x: '-50%', y: visible ? 0 : 8 }}
       transition={{ duration: 0.4 }}
-      className="pointer-events-none absolute bottom-20 left-1/2 z-20 w-[min(88%,320px)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-center backdrop-blur-md"
+      className="pointer-events-none absolute bottom-20 left-1/2 z-20 w-[min(88%,320px)] rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-center backdrop-blur-md"
     >
       <p className="font-display text-[9px] uppercase tracking-[0.3em]" style={{ color: ACCENT }}>
         [ Adam_AI ]
       </p>
       <p className="mt-1 text-xs text-white/70">{HUD_MESSAGES[index]}</p>
     </motion.div>
+  )
+}
+
+const TIMELINE_ALIGN: Array<'left' | 'right' | 'center'> = ['left', 'right', 'center']
+const TIMELINE_X: Record<'left' | 'right' | 'center', number> = { left: 8, right: 92, center: 50 }
+
+function TimelineDot({ x }: { x: number }) {
+  return (
+    <span
+      aria-hidden
+      className="absolute top-0 z-10 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition group-hover:scale-125"
+      style={{ left: `${x}%`, borderColor: ACCENT, background: '#05070c' }}
+    />
+  )
+}
+
+// Bridges two consecutive dots with a soft S-curve at their exact x-positions,
+// so the line always passes through the dot rather than approximating it —
+// a fixed-height segment between rows keeps this correct regardless of how
+// tall any given card's text ends up being.
+function TimelineConnector({ from, to }: { from: number; to: number }) {
+  return (
+    <svg aria-hidden viewBox="0 0 100 100" preserveAspectRatio="none" className="h-16 w-full sm:h-20">
+      <path
+        d={`M ${from} 0 C ${from} 55, ${to} 45, ${to} 100`}
+        fill="none"
+        stroke="rgba(207,227,232,0.28)"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
   )
 }
 
@@ -278,45 +426,40 @@ export default function Profile() {
           Le esperienze che mi hanno portato fin qui — mai in linea retta, ma sempre nella stessa direzione.
         </p>
 
-        <div className="relative mt-10 space-y-10 pl-9">
-          <svg
-            aria-hidden
-            className="absolute -left-[3px] top-0 h-full w-8"
-            viewBox="0 0 32 1000"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M16 0 C 4 70, 28 140, 16 210 C 4 280, 28 350, 16 420 C 4 490, 28 560, 16 630 C 4 700, 28 770, 16 840 C 6 900, 24 950, 16 1000"
-              fill="none"
-              stroke="rgba(207,227,232,0.28)"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-          {EXPERIENCES.map((exp, i) => (
-            <motion.div
-              key={exp.role + exp.period}
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className="group relative"
-              style={{ marginLeft: [0, 10, -6, 8, -4][i % 5] }}
-            >
-              <span
-                className="absolute -left-[37px] top-1 h-3 w-3 rounded-full border-2 transition group-hover:scale-125"
-                style={{ borderColor: ACCENT, background: '#05070c' }}
-              />
-              <p className="font-display text-xs uppercase tracking-widest" style={{ color: ACCENT }}>
-                {exp.period}
-              </p>
-              <h3 className="mt-1 font-display text-lg font-semibold uppercase tracking-wide text-white">
-                {exp.role}
-              </h3>
-              <p className="text-sm text-white/45">{exp.place}</p>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/55">{exp.text}</p>
-            </motion.div>
-          ))}
+        <div className="mt-10">
+          {EXPERIENCES.map((exp, i) => {
+            const align = TIMELINE_ALIGN[i % TIMELINE_ALIGN.length]
+            const x = TIMELINE_X[align]
+            const prevAlign = i > 0 ? TIMELINE_ALIGN[(i - 1) % TIMELINE_ALIGN.length] : null
+            return (
+              <div key={exp.role + exp.period}>
+                {prevAlign && <TimelineConnector from={TIMELINE_X[prevAlign]} to={x} />}
+                <div
+                  className={`relative flex ${align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'}`}
+                >
+                  <TimelineDot x={x} />
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.08 }}
+                    className={`group relative max-w-sm rounded-xl border border-white/10 bg-black/25 p-5 backdrop-blur-sm ${
+                      align === 'left' ? 'ml-3 sm:ml-6' : align === 'right' ? 'mr-3 text-right sm:mr-6' : 'mt-6 text-center'
+                    }`}
+                  >
+                    <p className="font-display text-xs uppercase tracking-widest" style={{ color: ACCENT }}>
+                      {exp.period}
+                    </p>
+                    <h3 className="mt-1 font-display text-lg font-semibold uppercase tracking-wide text-white">
+                      {exp.role}
+                    </h3>
+                    <p className="text-sm text-white/45">{exp.place}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-white/55">{exp.text}</p>
+                  </motion.div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </section>
 
@@ -328,16 +471,22 @@ export default function Profile() {
           className="corner-frame panel-glass rounded-2xl p-7 sm:p-9"
           style={{ color: ACCENT }}
         >
-          <h3 className="font-display text-sm font-bold uppercase tracking-widest text-white">Personalità</h3>
+          <h3 className="font-display text-sm font-bold uppercase tracking-widest text-white">Personalità · scan neurale</h3>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">
-            Il lato del CV che non sta in una lista di competenze: sono estroverso, mi piace stare tra le persone e
-            in accoglienza cerco sempre di far sentire l’ospite a proprio agio, non solo "gestito".
+            Il lato del CV che non sta in una lista di competenze — sei zone, sei modi diversi in cui si vede chi
+            sono, oltre al ruolo che ricopro in un dato momento.
           </p>
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+          <BrainMap />
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {PERSONALITY.map((p) => (
-              <div key={p.title} className="rounded-xl border border-white/10 p-4">
-                <p className="font-display text-xs uppercase tracking-widest text-white">{p.title}</p>
-                <p className="mt-1.5 text-xs leading-relaxed text-white/50">{p.text}</p>
+              <div key={p.title} className="flex gap-3 rounded-xl border border-white/10 p-4">
+                <span aria-hidden className="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ background: p.color }} />
+                <div>
+                  <p className="font-display text-xs uppercase tracking-widest text-white">{p.title}</p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-white/50">{p.text}</p>
+                </div>
               </div>
             ))}
           </div>
