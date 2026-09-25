@@ -1,6 +1,7 @@
-import { forwardRef, useImperativeHandle, useRef, useState, type ReactNode } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
+import { jitter } from '../lib/noise'
 
 const ACCENT = '#8fe0e8'
 const HAIR_TONES = ['#e8c26a', '#b8863a', '#d4a24e']
@@ -40,73 +41,60 @@ function RimMesh({ geometry, scale = 1.06, opacity = 0.55 }: { geometry: ReactNo
   )
 }
 
-// Hair is a solid short-cropped "cap" (a partial sphere covering crown,
-// temples and back) rendered with an UNLIT flat color — it deliberately
-// ignores the cyan/green hologram lighting so it reads as true blonde
-// instead of picking up a khaki tint — plus a thicker "roll" ring right at
-// the hairline (so the edge reads as having real depth, not a knife-thin
-// shell) and a few flattened, swept "bangs" breaking up that edge at the
-// front. An earlier version scattered many thin cones over the whole scalp
-// for texture; at any density that read as spikes/a sea urchin, and an even
-// earlier one covered so much of the head in a near-skin tone that it read
-// as a bald egg — the fix is a shorter cap, a clearly darker/richer color,
-// and a visible rolled edge for volume.
-const HAIRLINE_THETA = Math.PI * 0.4 // measured from the crown; stops above the brows
+// Hair is a cluster of small faceted "clumps" bunched over the crown —
+// each an irregular low-poly blob, randomly sized/rotated/tilted and
+// distributed with an uneven (not perfectly circular) hairline — so it
+// reads as a messy, textured tuft with real volume rather than a single
+// smooth surface. Two earlier attempts failed for opposite reasons: many
+// thin radiating cones read as a sea urchin, and one continuous smooth dome
+// with a rolled edge read as a bald cap / rubber swim cap. Overlapping
+// chunky facets avoid both: no long spikes, and no perfectly smooth surface.
+const HAIR_CLUMP_COUNT = 26
 
-function HairCap() {
-  return (
-    <mesh position={[0, 0.05, -0.01]} rotation={[0.04, 0, 0]}>
-      <sphereGeometry args={[HEAD_RADIUS * 1.015, 24, 16, 0, Math.PI * 2, 0, HAIRLINE_THETA]} />
-      <meshBasicMaterial color={HAIR_TONES[0]} toneMapped={false} />
-    </mesh>
-  )
-}
+function HairClumps() {
+  const clumps = useMemo(() => {
+    const items: { dir: THREE.Vector3; seed: number }[] = []
+    const golden = Math.PI * (3 - Math.sqrt(5))
+    const samples = HAIR_CLUMP_COUNT * 4
+    for (let i = 0; i < samples; i++) {
+      const y = 1 - (i / (samples - 1)) * 2
+      const r = Math.sqrt(Math.max(0, 1 - y * y))
+      const theta = golden * i
+      const dir = new THREE.Vector3(Math.cos(theta) * r, y, Math.sin(theta) * r).normalize()
+      // an intentionally uneven hairline instead of a perfect circle
+      const threshold = 0.16 + jitter(i, 0.16)
+      if (dir.y < threshold) continue
+      items.push({ dir, seed: i })
+    }
+    return items
+  }, [])
 
-function HairlineRoll() {
-  const R = HEAD_RADIUS * 1.015
-  const ringY = 0.05 + R * Math.cos(HAIRLINE_THETA)
-  const ringRadius = R * Math.sin(HAIRLINE_THETA)
-  return (
-    <mesh position={[0, ringY, -0.01]} rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[ringRadius, 0.045, 10, 28]} />
-      <meshBasicMaterial color={HAIR_TONES[1]} toneMapped={false} />
-    </mesh>
-  )
-}
-
-function FringeSwoop() {
-  const baseY = 0.05 + HEAD_RADIUS * 1.015 * Math.cos(HAIRLINE_THETA)
-  const strands = [
-    { x: -0.24, z: 0.2, rz: 0.55, len: 0.16, tone: 1 },
-    { x: -0.09, z: 0.28, rz: 0.3, len: 0.18, tone: 2 },
-    { x: 0.09, z: 0.28, rz: 0.05, len: 0.17, tone: 0 },
-    { x: 0.24, z: 0.2, rz: -0.4, len: 0.15, tone: 1 },
-  ]
   return (
     <>
-      {strands.map((s, i) => (
-        <mesh
-          key={i}
-          position={[s.x, baseY + 0.02, s.z]}
-          rotation={[0.7, i % 2 === 0 ? 0.15 : -0.15, s.rz]}
-          scale={[s.len, 0.75, 0.34]}
-        >
-          <sphereGeometry args={[0.09, 8, 6]} />
-          <meshBasicMaterial color={HAIR_TONES[s.tone]} toneMapped={false} />
-        </mesh>
-      ))}
+      {clumps.map(({ dir, seed }, i) => {
+        const stray = seed % 6 === 0 ? 0.1 : 0
+        const radius = HEAD_RADIUS * (0.82 + jitter(seed + 3, 0.14) + stray)
+        const pos = dir.clone().multiplyScalar(radius)
+        const size = 0.13 + jitter(seed + 7, 0.055) + stray * 0.3
+        const tone = HAIR_TONES[Math.abs(Math.floor(jitter(seed + 11, 3))) % HAIR_TONES.length]
+        return (
+          <mesh
+            key={i}
+            position={[pos.x, pos.y + 0.05, pos.z - 0.01]}
+            rotation={[jitter(seed + 13, 1.4), jitter(seed + 17, 1.4), jitter(seed + 19, 1.4)]}
+            scale={[1 + jitter(seed + 21, 0.35), 1 + jitter(seed + 23, 0.35), 1 + jitter(seed + 25, 0.35)]}
+          >
+            <icosahedronGeometry args={[size, 0]} />
+            <meshBasicMaterial color={tone} toneMapped={false} />
+          </mesh>
+        )
+      })}
     </>
   )
 }
 
 function Hair() {
-  return (
-    <>
-      <HairCap />
-      <HairlineRoll />
-      <FringeSwoop />
-    </>
-  )
+  return <HairClumps />
 }
 
 function Head({ blink }: { blink: number }) {

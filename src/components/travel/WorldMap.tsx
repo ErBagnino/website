@@ -25,18 +25,20 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
   const last = useRef({ x: 0, y: 0 })
   const moved = useRef(false)
 
-  // At scale S the viewport shows a VB_W/S x VB_H/S window of the map, so the
-  // pan needed to bring any true edge into view is bounded by how much
-  // smaller that window is than the full map — a fixed pan budget (as before)
-  // undershoots at low zoom and made far corners like New Zealand effectively
-  // unreachable.
+  // Horizontal panning wraps around like a 360° panorama instead of stopping
+  // at a hard edge — three copies of the map are rendered side by side (see
+  // below) and the pan value is folded back into one map-width so a country
+  // near the international date line is never "stuck" at the border; you can
+  // always keep dragging the same direction to reach it. Vertical panning
+  // stays clamped (there's no pole to wrap around to).
+  const wrapX = (x: number) => x - VB_W * Math.round(x / VB_W)
+
   const clamp = (v: { x: number; y: number; scale: number }) => {
     const scale = Math.min(MAX_SCALE, Math.max(1, v.scale))
-    const maxPanX = (VB_W / 2) * (1 - 1 / scale)
     const maxPanY = (VB_H / 2) * (1 - 1 / scale)
     return {
       scale,
-      x: Math.min(maxPanX, Math.max(-maxPanX, v.x)),
+      x: wrapX(v.x),
       y: Math.min(maxPanY, Math.max(-maxPanY, v.y)),
     }
   }
@@ -122,29 +124,34 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
           </defs>
           <rect x={VB_X} y={VB_Y} width={VB_W} height={VB_H} fill="url(#mapGrid)" />
           <g style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`, transformOrigin: `${VB_CX}px ${VB_CY}px` }}>
-            <path d={WORLD_MAP_PATH} fill="rgba(255,180,84,0.16)" stroke="rgba(255,180,84,0.5)" strokeWidth="0.5" />
-            {DESTINATIONS.map((d) => {
-              const active = selected.includes(d.code)
-              return (
-                <g
-                  key={d.code}
-                  transform={`translate(${d.x} ${d.y})`}
-                  onClick={() => {
-                    if (!moved.current) onToggle(d.code)
-                  }}
-                  className="cursor-pointer"
-                >
-                  <title>{nameOf(d.code)}</title>
-                  {active && (
-                    <circle r="8" fill="none" stroke={ACCENT} strokeWidth="0.8" opacity="0.6">
-                      <animate attributeName="r" values="5;11" dur="1.6s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0.7;0" dur="1.6s" repeatCount="indefinite" />
-                    </circle>
-                  )}
-                  <circle r={active ? 4.6 : 3} fill={active ? ACCENT : '#e7cf9a'} opacity={active ? 1 : 0.8} stroke="#05070c" strokeWidth="0.5" />
-                </g>
-              )
-            })}
+            {/* three copies side by side so panning wraps around like a 360° panorama instead of stopping at a hard edge */}
+            {[-VB_W, 0, VB_W].map((offset) => (
+              <g key={offset} transform={`translate(${offset} 0)`}>
+                <path d={WORLD_MAP_PATH} fill="rgba(255,180,84,0.16)" stroke="rgba(255,180,84,0.5)" strokeWidth="0.5" />
+                {DESTINATIONS.map((d) => {
+                  const active = selected.includes(d.code)
+                  return (
+                    <g
+                      key={d.code}
+                      transform={`translate(${d.x} ${d.y})`}
+                      onClick={() => {
+                        if (!moved.current) onToggle(d.code)
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <title>{nameOf(d.code)}</title>
+                      {active && (
+                        <circle r="8" fill="none" stroke={ACCENT} strokeWidth="0.8" opacity="0.6">
+                          <animate attributeName="r" values="5;11" dur="1.6s" repeatCount="indefinite" />
+                          <animate attributeName="opacity" values="0.7;0" dur="1.6s" repeatCount="indefinite" />
+                        </circle>
+                      )}
+                      <circle r={active ? 4.6 : 3} fill={active ? ACCENT : '#e7cf9a'} opacity={active ? 1 : 0.8} stroke="#05070c" strokeWidth="0.5" />
+                    </g>
+                  )
+                })}
+              </g>
+            ))}
           </g>
         </svg>
 
