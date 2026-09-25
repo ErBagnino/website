@@ -381,7 +381,7 @@ export default function Profile() {
           </motion.div>
         </div>
 
-        <div className="relative z-10 h-[46vh] w-full lg:h-full lg:w-1/2">
+        <div className="relative z-10 h-[46vh] w-full touch-none lg:h-full lg:w-1/2">
           <Scene3D
             label="Avatar 3D olografico di Adam: trascinalo per ruotarlo a 360 gradi"
             camera={{ position: [0, 0.1, 3.4], fov: 42 }}

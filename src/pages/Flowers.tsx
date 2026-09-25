@@ -11,38 +11,38 @@ const ACCENT = '#ff7ab8'
 const STYLES = [
   {
     icon: '❀',
-    title: 'Bouquet classico',
-    text: 'Una composizione piena, pensata per un regalo che si nota — e che non appassisce mai.',
+    title: 'Composizione piena',
+    text: 'Il formato a cui torno più spesso: pieno, denso, pensato per un regalo che si nota — e che non appassisce mai.',
   },
   {
     icon: '✿',
-    title: 'Mini bouquet',
-    text: 'Piccolo, delicato, perfetto da tenere su una scrivania o infilare in una borsa.',
+    title: 'Formato mini',
+    text: 'A volte mi viene piccolo e delicato, giusto per una scrivania o per infilarlo in una borsa.',
   },
   {
     icon: '❁',
-    title: 'Fiore singolo',
-    text: 'Un pensiero minimo ma curato, quando basta un solo gesto.',
+    title: 'Un fiore solo',
+    text: 'Il più semplice: un pensiero minimo ma curato, quando basta un solo gesto.',
   },
   {
     icon: '✾',
-    title: 'Su misura',
-    text: 'Colori, forma e dimensione decisi insieme a te, per un’idea più personale.',
+    title: 'Ogni bouquet è diverso',
+    text: 'Non seguo uno stampo fisso — quello che vedi qui sono solo esempi di come può venire.',
   },
 ]
 
 const CUSTOMIZE = [
   {
     title: 'Colori',
-    text: 'Scegli la palette: un colore solo per un effetto pulito, oppure un mix — dimmi cosa preferisce chi lo riceve.',
+    text: 'Non ho una palette fissa: cambia in base a chi lo riceve — un colore solo per un effetto pulito, o un mix.',
   },
   {
     title: 'Dimensione',
-    text: 'Da un fiore singolo a un bouquet pieno: quanto spazio deve occupare il regalo.',
+    text: 'Da un fiore singolo a un bouquet pieno, dipende da quanto spazio deve occupare il pensiero.',
   },
   {
     title: 'Occasione',
-    text: 'Compleanno, laurea, "pensavo a te" — mi aiuta a scegliere forma e tono giusti.',
+    text: 'Compleanno, laurea, "pensavo a te" — è quello che mi aiuta a capire forma e tono giusti.',
   },
   {
     title: 'Nessun originale identico',
@@ -88,7 +88,7 @@ export default function Flowers() {
   useDocumentMeta({
     title: 'Fiori di Filo | Adam Gabriele Javurek — Bouquet fatti a mano',
     description:
-      'Bouquet fatti a mano con pipe cleaners, il filo morbido rivestito in metallo: fiori che non appassiscono mai. Scrivimi su WhatsApp per un bouquet su misura.',
+      'Bouquet fatti a mano con pipe cleaners, il filo morbido rivestito in metallo: fiori che non appassiscono mai. Se ti ha incuriosito, scrivimi su WhatsApp.',
     path: '/flowers',
   })
 
@@ -121,7 +121,7 @@ export default function Flowers() {
         <p className="mt-3 max-w-2xl text-white/55">
           È un lavoretto manuale che faccio nel tempo libero: piego, intreccio e compongo a mano ogni fiore con
           pipe cleaners, un filo morbido rivestito che si piega in qualsiasi forma. Il risultato è un piccolo
-          bouquet che resta bello per anni.
+          bouquet che resta bello per anni. Qui sotto qualche esempio di come vengono, non un catalogo di modelli.
         </p>
 
         <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -151,7 +151,7 @@ export default function Flowers() {
           viewport={{ once: true }}
           className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl"
         >
-          Cosa puoi decidere tu
+          Come nasce ogni bouquet
         </motion.h2>
         <p className="mt-3 max-w-2xl text-white/55">
           Non c’è un catalogo con modelli fissi: ogni bouquet parte da zero, in base a quello che mi racconti.
@@ -180,7 +180,7 @@ export default function Flowers() {
           viewport={{ once: true }}
           className="corner-frame panel-glass rounded-2xl p-8 text-flora sm:p-10"
         >
-          <h3 className="font-display text-xl font-bold uppercase tracking-wide text-white">Vuoi un bouquet?</h3>
+          <h3 className="font-display text-xl font-bold uppercase tracking-wide text-white">Se ti ha incuriosito</h3>
           <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">
             Raccontami per chi è, che colori preferisce e per quale occasione — il resto lo penso io. Nessun
             catalogo fisso, nessun negozio: è un piccolo regalo che faccio volentieri, non un prodotto in vendita.

@@ -35,7 +35,7 @@ const MODULES = [
   {
     to: '/travel',
     title: 'Viaggi',
-    subtitle: 'Itinerari, hotel e ristoranti pensati su misura per te',
+    subtitle: 'Itinerari, hotel e ristoranti — uno dei miei hobby preferiti',
     accent: '#ffb454',
     icon: '✈',
   },
@@ -264,7 +264,7 @@ export default function Home() {
               className="mt-4 max-w-xl text-center text-sm text-white/60 sm:text-base"
             >
               Quattro moduli, una sola persona dietro. Scegline uno per scoprire cosa so fare e, se ti va,
-              raccontami cosa ti serve.
+              scrivimi per parlarne.
             </motion.p>
 
             <div className="mt-12 grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

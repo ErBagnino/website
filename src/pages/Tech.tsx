@@ -124,11 +124,11 @@ export default function Tech() {
           viewport={{ once: true }}
           className="corner-frame panel-glass rounded-2xl p-8 text-accent sm:p-10"
         >
-          <h3 className="font-display text-xl font-bold uppercase tracking-wide text-white">Come lavoro</h3>
+          <h3 className="font-display text-xl font-bold uppercase tracking-wide text-white">Come lo vivo</h3>
           <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">
-            Nessuna fattura, nessun contratto chilometrico: parliamo di cosa ti serve, ti faccio vedere qualche
-            proposta e andiamo avanti solo se ti convince. È un aiuto tra persone, fatto con cura — la stessa
-            che ci metterei per un progetto mio.
+            Niente fatture né contratti: mi scrivi cosa hai in mente, ne parliamo con calma e vediamo insieme
+            se riesco a darti una mano. È un aiuto tra persone, fatto con la stessa cura che metterei in un
+            progetto mio.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <WhatsAppButton

@@ -34,6 +34,11 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
   const dragging = useRef(false)
   const last = useRef({ x: 0, y: 0 })
   const moved = useRef(false)
+  // Active touches by pointerId, so a second finger switches from single-finger
+  // pan to pinch-to-zoom (distance between the two points) + two-finger pan
+  // (their midpoint), the touch equivalent of drag + mouse-wheel on desktop.
+  const activeTouches = useRef(new Map<number, { x: number; y: number }>())
+  const pinchLast = useRef<{ dist: number; mid: { x: number; y: number } } | null>(null)
 
   // Horizontal panning wraps around like a 360° panorama instead of stopping
   // at a hard edge — three copies of the map are rendered side by side (see
@@ -74,13 +79,52 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
     })
   }
 
+  const pinchDist = (pts: { x: number; y: number }[]) => Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y)
+  const pinchMid = (pts: { x: number; y: number }[]) => ({ x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 })
+
   const onPointerDown = (e: React.PointerEvent) => {
+    ;(e.target as Element).setPointerCapture?.(e.pointerId)
+    if (e.pointerType === 'touch') {
+      activeTouches.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      if (activeTouches.current.size === 2) {
+        dragging.current = false
+        const pts = Array.from(activeTouches.current.values())
+        pinchLast.current = { dist: pinchDist(pts), mid: pinchMid(pts) }
+        return
+      }
+    }
     dragging.current = true
     moved.current = false
     last.current = { x: e.clientX, y: e.clientY }
-    ;(e.target as Element).setPointerCapture?.(e.pointerId)
   }
   const onPointerMove = (e: React.PointerEvent) => {
+    if (e.pointerType === 'touch' && activeTouches.current.has(e.pointerId)) {
+      activeTouches.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    }
+
+    if (activeTouches.current.size === 2 && pinchLast.current) {
+      moved.current = true
+      const pts = Array.from(activeTouches.current.values())
+      const dist = pinchDist(pts)
+      const mid = pinchMid(pts)
+      const rect = containerRef.current!.getBoundingClientRect()
+      const px = VB_W / rect.width
+      const py = VB_H / rect.height
+      const dmx = mid.x - pinchLast.current.mid.x
+      const dmy = mid.y - pinchLast.current.mid.y
+      const factor = dist / pinchLast.current.dist
+      setView((v) => {
+        const panned = { ...v, x: v.x - (dmx * px) / v.scale, y: v.y - (dmy * py) / v.scale }
+        const { wx, wy, fx, fy } = pointToWorld(mid.x, mid.y, panned)
+        const scale = Math.min(MAX_SCALE, Math.max(1, panned.scale * factor))
+        const x = wx - VB_CX - (fx - VB_CX) / scale
+        const y = wy - VB_CY - (fy - VB_CY) / scale
+        return clamp({ scale, x, y })
+      })
+      pinchLast.current = { dist, mid }
+      return
+    }
+
     if (!dragging.current) return
     const dx = e.clientX - last.current.x
     const dy = e.clientY - last.current.y
@@ -91,7 +135,15 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
     const py = VB_H / rect.height
     setView((v) => clamp({ ...v, x: v.x - (dx * px) / v.scale, y: v.y - (dy * py) / v.scale }))
   }
-  const onPointerUp = () => {
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (e.pointerType === 'touch') {
+      activeTouches.current.delete(e.pointerId)
+      if (activeTouches.current.size < 2) pinchLast.current = null
+      // dropping to one finger after a pinch shouldn't suddenly resume a pan
+      // with a stale `last` position, so require a fresh pointerdown for that
+      dragging.current = false
+      return
+    }
     dragging.current = false
   }
 
@@ -125,7 +177,7 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
         role="group"
-        aria-label="Mappa del mondo per selezionare le destinazioni: trascina per spostarti, rotellina o pulsanti per zoomare"
+        aria-label="Mappa del mondo per selezionare le destinazioni: trascina per spostarti, rotellina o pizzica con due dita per zoomare"
       >
         <svg viewBox={WORLD_MAP_VIEWBOX} className="h-full w-full" preserveAspectRatio="xMidYMid meet">
           <defs>

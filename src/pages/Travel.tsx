@@ -12,22 +12,22 @@ const ACCENT = '#ffb454'
 const HELPS = [
   {
     icon: '⌂',
-    title: 'Hotel su misura',
+    title: 'Trovare l’hotel giusto',
     text: 'Dal più economico al migliore rapporto qualità-prezzo, fino alla struttura top per chi vuole coccolarsi.',
   },
   {
     icon: '✈',
-    title: 'Voli',
+    title: 'Districarmi tra i voli',
     text: 'Confronto rotte e orari per trovare la soluzione più sensata, senza scali assurdi o sorprese.',
   },
   {
     icon: '⌘',
-    title: 'Itinerari giorno per giorno',
+    title: 'Costruire l’itinerario',
     text: 'Un percorso realistico, con i tempi giusti tra un posto e l’altro — niente corse assurde per vedere tutto.',
   },
   {
     icon: '❖',
-    title: 'Ristoranti locali',
+    title: 'Scovare dove mangiare bene',
     text: 'Posti veri, dove si mangia bene senza il conto da turista — quelli che cerco anche per me.',
   },
 ]
@@ -69,9 +69,9 @@ function DuskSky() {
 
 export default function Travel() {
   useDocumentMeta({
-    title: 'Viaggi | Adam Gabriele Javurek — Itinerari, hotel e ristoranti su misura',
+    title: 'Viaggi | Adam Gabriele Javurek — Itinerari, hotel e ristoranti',
     description:
-      'Una mano gratuita per organizzare il tuo viaggio: hotel, voli, itinerari, ristoranti locali ed esperienze, con l’aiuto dell’AI. Compila il questionario su WhatsApp.',
+      'Organizzare viaggi è uno dei miei hobby: hotel, voli, itinerari, ristoranti locali ed esperienze, con l’aiuto dell’AI. Raccontami il tuo viaggio e ne parliamo su WhatsApp.',
     path: '/travel',
   })
 
@@ -135,18 +135,19 @@ export default function Travel() {
           className="corner-frame panel-glass rounded-2xl p-8 text-center text-travel sm:p-14"
         >
           <h3 className="font-display text-xl font-bold uppercase tracking-wide text-white sm:text-2xl">
-            Componi la tua richiesta
+            Raccontami il viaggio che hai in mente
           </h3>
           <p className="mx-auto mt-3 max-w-md text-sm text-white/55">
-            Un questionario guidato in pochi passaggi — destinazione su una mappa interattiva, date, stile, budget e
-            preferenze. Alla fine preparo io il messaggio con tutti i dettagli, tu premi solo invio.
+            Qualche domanda in pochi passaggi — destinazione su una mappa interattiva, date, stile, budget e
+            preferenze — solo per capire cosa ti frulla in testa. Alla fine preparo io un messaggio con tutti i
+            dettagli, pronto per essere spedito quando vuoi.
           </p>
           <Link
             to="/travel/questionnaire"
             style={{ background: ACCENT }}
             className="mt-8 inline-block rounded-full px-8 py-3 font-display text-sm uppercase tracking-widest text-void transition hover:scale-105"
           >
-            Inizia la tua richiesta
+            Raccontamelo
           </Link>
         </motion.div>
       </section>

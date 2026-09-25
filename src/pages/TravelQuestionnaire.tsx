@@ -100,8 +100,8 @@ function Stepper({ value, onChange, min = 0, max = 12, label }: { value: number;
 
 export default function TravelQuestionnaire() {
   useDocumentMeta({
-    title: 'Pianifica il tuo viaggio | Adam Gabriele Javurek',
-    description: 'Questionario guidato per raccontarmi il viaggio che hai in mente: destinazione, date, stile e preferenze. Alla fine preparo io il messaggio, tu premi invio.',
+    title: 'Raccontami il tuo viaggio | Adam Gabriele Javurek',
+    description: 'Qualche domanda guidata per raccontarmi il viaggio che hai in mente: destinazione, date, stile e preferenze. Alla fine preparo io un messaggio pronto da mandarmi su WhatsApp.',
     path: '/travel/questionnaire',
   })
 
@@ -208,11 +208,11 @@ export default function TravelQuestionnaire() {
     const dietLabel = diet.length ? [...diet, dietOther.trim() || null].filter(Boolean).join(', ') : null
 
     const lines: (string | null)[] = [
-      'Ciao Adam! Ho compilato il questionario viaggi del tuo portfolio, ecco i dettagli:',
+      'Ciao Adam! Sto pensando a un viaggio e volevo raccontarti un po\' quello che ho in mente — ho usato il questionario del tuo portfolio, ecco cosa ne è uscito:',
       destLabel ? `📍 Destinazione: ${destLabel}` : null,
       periodLabel ? `🗓️ Periodo: ${periodLabel}` : null,
       `👥 Chi viaggia: ${whoLabel}`,
-      needLabels.length ? `🧭 Di cosa ho bisogno: ${needLabels.join(', ')}` : null,
+      needLabels.length ? `🧭 Cosa mi piacerebbe capire insieme: ${needLabels.join(', ')}` : null,
       budgetLabel ? `💶 Budget indicativo: ${budgetLabel}` : null,
       accommodationLabel ? `🏨 Alloggio: ${accommodationLabel}` : null,
       flightLabel ? `✈️ Voli: ${flightLabel}` : null,
@@ -221,7 +221,7 @@ export default function TravelQuestionnaire() {
       dietLabel ? `🍽️ Preferenze alimentari: ${dietLabel}` : null,
       transport.length ? `🚗 Spostamenti sul posto: ${transport.join(', ')}` : null,
       notes.trim() ? `📝 Note: ${notes.trim()}` : null,
-      'Mi racconti come possiamo procedere?',
+      'Fammi sapere cosa ne pensi, ne parliamo con calma!',
     ]
     return lines.filter(Boolean).join('\n')
   }, [
@@ -246,11 +246,11 @@ export default function TravelQuestionnaire() {
           animate={{ opacity: 1, y: 0 }}
           className="font-display text-2xl font-bold uppercase tracking-wide text-white sm:text-3xl"
         >
-          Pianifica il tuo viaggio
+          Che viaggio hai in mente?
         </motion.h1>
         <p className="mt-2 max-w-xl text-sm text-white/55">
-          Qualche domanda guidata, niente di burocratico: alla fine preparo io il messaggio con tutti i dettagli, tu
-          premi solo invio.
+          Qualche domanda guidata, niente di burocratico: mi aiuta a capire cosa hai in testa. Alla fine ti preparo
+          un messaggio con tutti i dettagli, pronto da mandarmi su WhatsApp quando vuoi.
         </p>
 
         <div className="corner-frame panel-glass mt-8 rounded-2xl p-6 text-travel sm:p-10">
@@ -507,14 +507,14 @@ export default function TravelQuestionnaire() {
               {isSummary && (
                 <div>
                   <h3 className="mb-2 font-display text-lg font-bold uppercase tracking-wide text-white sm:text-xl">
-                    La tua richiesta è pronta
+                    Ecco il messaggio pronto
                   </h3>
-                  <p className="mb-4 text-sm text-white/55">Ecco il messaggio che invierai — puoi tornare indietro per cambiare qualcosa.</p>
+                  <p className="mb-4 text-sm text-white/55">Puoi tornare indietro per cambiare qualcosa, oppure mandarmelo così com'è.</p>
                   <div className="whitespace-pre-line rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-white/70">
                     {message}
                   </div>
                   <div className="mt-6">
-                    <WhatsAppButton accent={ACCENT} message={message} label="Invia questa richiesta su WhatsApp" big />
+                    <WhatsAppButton accent={ACCENT} message={message} label="Mandalo su WhatsApp" big />
                   </div>
                 </div>
               )}
