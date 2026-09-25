@@ -20,7 +20,11 @@ export default function ParticleField({
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3)
     for (let i = 0; i < count; i++) {
-      const r = radius * (0.35 + Math.random() * 0.65)
+      // Kept out of the inner ~60% of the radius: with size-attenuated points,
+      // anything that spawns close to the camera/subject renders as a large
+      // square that can obscure the 3D scene in front of it — pushing the
+      // whole field out to an outer shell keeps it as background atmosphere.
+      const r = radius * (0.6 + Math.random() * 0.4)
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(2 * Math.random() - 1)
       arr[i * 3] = r * Math.sin(phi) * Math.cos(theta)

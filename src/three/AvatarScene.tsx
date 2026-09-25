@@ -3,7 +3,7 @@ import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 
 const ACCENT = '#8fe0e8'
-const HAIR_TONES = ['#f2dda0', '#e0bd74', '#eccf8c']
+const HAIR_TONES = ['#e8c26a', '#b8863a', '#d4a24e']
 const EYE = '#4fdc82'
 const HEAD_RADIUS = 0.44
 
@@ -41,37 +41,55 @@ function RimMesh({ geometry, scale = 1.06, opacity = 0.55 }: { geometry: ReactNo
 }
 
 // Hair is a solid short-cropped "cap" (a partial sphere covering crown,
-// temples and back, with a forehead fringe) rendered with an UNLIT flat
-// color — it deliberately ignores the cyan/green hologram lighting so it
-// reads as true blonde instead of picking up a khaki tint — plus a handful
-// of flattened, swept "bangs" at the front for a bit of styled character.
-// An earlier version scattered many thin cones over the whole scalp for
-// texture; at any density that read as spikes/a sea urchin rather than
-// hair, so the fix is one clean solid volume instead of more geometry.
+// temples and back) rendered with an UNLIT flat color — it deliberately
+// ignores the cyan/green hologram lighting so it reads as true blonde
+// instead of picking up a khaki tint — plus a thicker "roll" ring right at
+// the hairline (so the edge reads as having real depth, not a knife-thin
+// shell) and a few flattened, swept "bangs" breaking up that edge at the
+// front. An earlier version scattered many thin cones over the whole scalp
+// for texture; at any density that read as spikes/a sea urchin, and an even
+// earlier one covered so much of the head in a near-skin tone that it read
+// as a bald egg — the fix is a shorter cap, a clearly darker/richer color,
+// and a visible rolled edge for volume.
+const HAIRLINE_THETA = Math.PI * 0.4 // measured from the crown; stops above the brows
+
 function HairCap() {
   return (
     <mesh position={[0, 0.05, -0.01]} rotation={[0.04, 0, 0]}>
-      <sphereGeometry args={[HEAD_RADIUS * 1.015, 24, 16, 0, Math.PI * 2, 0, Math.PI * 0.64]} />
+      <sphereGeometry args={[HEAD_RADIUS * 1.015, 24, 16, 0, Math.PI * 2, 0, HAIRLINE_THETA]} />
+      <meshBasicMaterial color={HAIR_TONES[0]} toneMapped={false} />
+    </mesh>
+  )
+}
+
+function HairlineRoll() {
+  const R = HEAD_RADIUS * 1.015
+  const ringY = 0.05 + R * Math.cos(HAIRLINE_THETA)
+  const ringRadius = R * Math.sin(HAIRLINE_THETA)
+  return (
+    <mesh position={[0, ringY, -0.01]} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[ringRadius, 0.045, 10, 28]} />
       <meshBasicMaterial color={HAIR_TONES[1]} toneMapped={false} />
     </mesh>
   )
 }
 
 function FringeSwoop() {
+  const baseY = 0.05 + HEAD_RADIUS * 1.015 * Math.cos(HAIRLINE_THETA)
   const strands = [
-    { x: -0.24, y: 0.14, z: 0.24, rz: 0.55, len: 0.16, tone: 0 },
-    { x: -0.1, y: 0.19, z: 0.3, rz: 0.3, len: 0.17, tone: 2 },
-    { x: 0.08, y: 0.19, z: 0.3, rz: 0.05, len: 0.16, tone: 1 },
-    { x: 0.23, y: 0.13, z: 0.23, rz: -0.4, len: 0.15, tone: 2 },
+    { x: -0.24, z: 0.2, rz: 0.55, len: 0.16, tone: 1 },
+    { x: -0.09, z: 0.28, rz: 0.3, len: 0.18, tone: 2 },
+    { x: 0.09, z: 0.28, rz: 0.05, len: 0.17, tone: 0 },
+    { x: 0.24, z: 0.2, rz: -0.4, len: 0.15, tone: 1 },
   ]
   return (
     <>
       {strands.map((s, i) => (
         <mesh
           key={i}
-          position={[s.x, s.y, s.z]}
-          rotation={[0.75, i % 2 === 0 ? 0.15 : -0.15, s.rz]}
-          scale={[s.len, 0.7, 0.32]}
+          position={[s.x, baseY + 0.02, s.z]}
+          rotation={[0.7, i % 2 === 0 ? 0.15 : -0.15, s.rz]}
+          scale={[s.len, 0.75, 0.34]}
         >
           <sphereGeometry args={[0.09, 8, 6]} />
           <meshBasicMaterial color={HAIR_TONES[s.tone]} toneMapped={false} />
@@ -85,6 +103,7 @@ function Hair() {
   return (
     <>
       <HairCap />
+      <HairlineRoll />
       <FringeSwoop />
     </>
   )

@@ -163,7 +163,7 @@ export default function BouquetScene() {
       {stems.map((s, i) => (
         <Flower key={i} position={s.top} color={s.color} delay={s.flowerDelay} seed={s.seed} />
       ))}
-      <ParticleField radius={8} color="#ff7ab8" count={420} size={0.016} />
+      <ParticleField radius={9} color="#ff7ab8" count={420} size={0.011} />
     </group>
   )
 }

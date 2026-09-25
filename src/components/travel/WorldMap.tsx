@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getCountries } from '../../lib/countries'
 import { DESTINATIONS } from '../../lib/destinations'
 import { WORLD_MAP_PATH, WORLD_MAP_VIEWBOX } from '../../lib/worldMapPath'
@@ -8,6 +8,7 @@ const ACCENT = '#ffb454'
 const [VB_X, VB_Y, VB_W, VB_H] = WORLD_MAP_VIEWBOX.split(' ').map(Number)
 const VB_CX = VB_X + VB_W / 2
 const VB_CY = VB_Y + VB_H / 2
+const MAX_SCALE = 5
 
 interface WorldMapProps {
   selected: string[]
@@ -19,19 +20,45 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
   const nameOf = (code: string) => countries.find((c) => c.code === code)?.name ?? code
 
   const [view, setView] = useState({ x: 0, y: 0, scale: 1 })
+  const containerRef = useRef<HTMLDivElement>(null)
   const dragging = useRef(false)
   const last = useRef({ x: 0, y: 0 })
   const moved = useRef(false)
 
+  // At scale S the viewport shows a VB_W/S x VB_H/S window of the map, so the
+  // pan needed to bring any true edge into view is bounded by how much
+  // smaller that window is than the full map — a fixed pan budget (as before)
+  // undershoots at low zoom and made far corners like New Zealand effectively
+  // unreachable.
   const clamp = (v: { x: number; y: number; scale: number }) => {
-    const scale = Math.min(3.2, Math.max(1, v.scale))
-    const maxPanX = (scale - 1) * 210
-    const maxPanY = (scale - 1) * 130
+    const scale = Math.min(MAX_SCALE, Math.max(1, v.scale))
+    const maxPanX = (VB_W / 2) * (1 - 1 / scale)
+    const maxPanY = (VB_H / 2) * (1 - 1 / scale)
     return {
       scale,
       x: Math.min(maxPanX, Math.max(-maxPanX, v.x)),
       y: Math.min(maxPanY, Math.max(-maxPanY, v.y)),
     }
+  }
+
+  // Convert a pointer's screen position to the map's own user-space
+  // coordinates, given the current pan/zoom of the inner <g>.
+  const pointToWorld = (clientX: number, clientY: number, v: { x: number; y: number; scale: number }) => {
+    const rect = containerRef.current!.getBoundingClientRect()
+    const fx = VB_X + ((clientX - rect.left) / rect.width) * VB_W
+    const fy = VB_Y + ((clientY - rect.top) / rect.height) * VB_H
+    return { wx: VB_CX + (fx - VB_CX - v.x) / v.scale, wy: VB_CY + (fy - VB_CY - v.y) / v.scale, fx, fy }
+  }
+
+  const zoomAt = (clientX: number, clientY: number, factor: number) => {
+    setView((v) => {
+      const { wx, wy, fx, fy } = pointToWorld(clientX, clientY, v)
+      const scale = Math.min(MAX_SCALE, Math.max(1, v.scale * factor))
+      // keep the same world point under the cursor after rescaling
+      const x = fx - VB_CX - scale * (wx - VB_CX)
+      const y = fy - VB_CY - scale * (wy - VB_CY)
+      return clamp({ scale, x, y })
+    })
   }
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -46,26 +73,44 @@ export default function WorldMap({ selected, onToggle }: WorldMapProps) {
     const dy = e.clientY - last.current.y
     if (Math.abs(dx) + Math.abs(dy) > 3) moved.current = true
     last.current = { x: e.clientX, y: e.clientY }
-    setView((v) => clamp({ ...v, x: v.x + dx * 0.8, y: v.y + dy * 0.8 }))
+    const rect = containerRef.current!.getBoundingClientRect()
+    const px = VB_W / rect.width
+    const py = VB_H / rect.height
+    setView((v) => clamp({ ...v, x: v.x + dx * px, y: v.y + dy * py }))
   }
   const onPointerUp = () => {
     dragging.current = false
   }
-  const onWheel = (e: React.WheelEvent) => {
-    e.preventDefault()
-    setView((v) => clamp({ ...v, scale: v.scale - e.deltaY * 0.0016 }))
+
+  // A native, non-passive listener is required: React's onWheel is attached
+  // passively, so e.preventDefault() silently fails there and the page
+  // scrolls right along with the intended zoom.
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const handler = (e: WheelEvent) => {
+      e.preventDefault()
+      zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.0016))
+    }
+    el.addEventListener('wheel', handler, { passive: false })
+    return () => el.removeEventListener('wheel', handler)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const zoomBy = (delta: number) => {
+    const rect = containerRef.current!.getBoundingClientRect()
+    zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, delta > 0 ? 1.4 : 1 / 1.4)
   }
-  const zoomBy = (delta: number) => setView((v) => clamp({ ...v, scale: v.scale + delta }))
 
   return (
     <div>
       <div
+        ref={containerRef}
         className="relative aspect-[784/459] w-full touch-none overflow-hidden rounded-xl border border-white/10 bg-black/40"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
-        onWheel={onWheel}
         role="group"
         aria-label="Mappa del mondo per selezionare le destinazioni: trascina per spostarti, rotellina o pulsanti per zoomare"
       >

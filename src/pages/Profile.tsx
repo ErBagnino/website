@@ -63,6 +63,10 @@ const SKILLS = [
   'Buona Volontà & Proattività',
   'Flessibilità Oraria',
   'Web Design & Front-End',
+  'Comunicazione & Ascolto',
+  'Gestione dello Stress',
+  'Problem Solving',
+  'Primo Soccorso (BLSD)',
 ]
 
 const LANGUAGES = [
@@ -78,6 +82,13 @@ const EDUCATION = [
 ]
 
 const INTERESTS = ['Puntualità', 'Occhio per il design', 'Attitudine interculturale', 'Home gym & nutrizione']
+
+const PERSONALITY = [
+  { title: 'Estroverso', text: 'Parlare con persone nuove non mi pesa — mi viene naturale, anche nei momenti più caotici.' },
+  { title: 'A mio agio con le persone', text: 'Che sia dietro un banco reception o su una spiaggia affollata, riesco a restare tranquillo e presente.' },
+  { title: 'Metto a proprio agio', text: 'Il mio obiettivo, in accoglienza, è sempre far sentire l’altra persona vista e tranquilla, non solo "servita".' },
+  { title: 'Squadra prima di tutto', text: 'Preferisco un buon lavoro di gruppo a un successo individuale — si vede in ogni ruolo che ho fatto finora.' },
+]
 
 function HudMessage() {
   const [index, setIndex] = useState(0)
@@ -121,16 +132,16 @@ function ScanStats() {
       initial={{ opacity: 0, x: 10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 1.4 }}
-      className="pointer-events-none absolute right-4 top-4 z-20 rounded-xl border border-white/10 bg-black/45 px-4 py-3 backdrop-blur-md"
+      className="pointer-events-none absolute right-3 top-3 z-20 min-w-[130px] rounded-xl border border-white/10 bg-black/45 px-3 py-2.5 backdrop-blur-md sm:right-5 sm:top-5 sm:min-w-[190px] sm:rounded-2xl sm:px-5 sm:py-4"
     >
-      <p className="font-display text-[9px] uppercase tracking-[0.3em]" style={{ color: ACCENT }}>
+      <p className="font-display text-[9px] uppercase tracking-[0.3em] sm:text-xs" style={{ color: ACCENT }}>
         Scan · identikit
       </p>
-      <div className="mt-2 space-y-1">
+      <div className="mt-1.5 space-y-1 sm:mt-3 sm:space-y-2">
         {SCAN_STATS.map((s) => (
-          <div key={s.label} className="flex items-center justify-between gap-4 text-[11px]">
-            <span className="text-white/45">{s.label}</span>
-            <span className="text-white/80">{s.value}</span>
+          <div key={s.label} className="flex items-center justify-between gap-3 text-[10px] sm:gap-5 sm:text-sm">
+            <span className="text-white/50">{s.label}</span>
+            <span className="font-medium text-white/90">{s.value}</span>
           </div>
         ))}
       </div>
@@ -263,9 +274,25 @@ export default function Profile() {
         >
           Percorso
         </motion.h2>
-        <p className="mt-3 max-w-2xl text-white/55">Le esperienze che mi hanno portato fin qui.</p>
+        <p className="mt-3 max-w-2xl text-white/55">
+          Le esperienze che mi hanno portato fin qui — mai in linea retta, ma sempre nella stessa direzione.
+        </p>
 
-        <div className="relative mt-10 space-y-8 border-l pl-8" style={{ borderColor: 'rgba(207,227,232,0.25)' }}>
+        <div className="relative mt-10 space-y-10 pl-9">
+          <svg
+            aria-hidden
+            className="absolute -left-[3px] top-0 h-full w-8"
+            viewBox="0 0 32 1000"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M16 0 C 4 70, 28 140, 16 210 C 4 280, 28 350, 16 420 C 4 490, 28 560, 16 630 C 4 700, 28 770, 16 840 C 6 900, 24 950, 16 1000"
+              fill="none"
+              stroke="rgba(207,227,232,0.28)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
           {EXPERIENCES.map((exp, i) => (
             <motion.div
               key={exp.role + exp.period}
@@ -274,9 +301,10 @@ export default function Profile() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
               className="group relative"
+              style={{ marginLeft: [0, 10, -6, 8, -4][i % 5] }}
             >
               <span
-                className="absolute -left-[41px] top-1 h-3 w-3 rounded-full border-2 transition group-hover:scale-125"
+                className="absolute -left-[37px] top-1 h-3 w-3 rounded-full border-2 transition group-hover:scale-125"
                 style={{ borderColor: ACCENT, background: '#05070c' }}
               />
               <p className="font-display text-xs uppercase tracking-widest" style={{ color: ACCENT }}>
@@ -290,6 +318,30 @@ export default function Profile() {
             </motion.div>
           ))}
         </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-6 pb-24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="corner-frame panel-glass rounded-2xl p-7 sm:p-9"
+          style={{ color: ACCENT }}
+        >
+          <h3 className="font-display text-sm font-bold uppercase tracking-widest text-white">Personalità</h3>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">
+            Il lato del CV che non sta in una lista di competenze: sono estroverso, mi piace stare tra le persone e
+            in accoglienza cerco sempre di far sentire l’ospite a proprio agio, non solo "gestito".
+          </p>
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {PERSONALITY.map((p) => (
+              <div key={p.title} className="rounded-xl border border-white/10 p-4">
+                <p className="font-display text-xs uppercase tracking-widest text-white">{p.title}</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/50">{p.text}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </section>
 
       <section className="mx-auto max-w-5xl px-6 pb-24">
